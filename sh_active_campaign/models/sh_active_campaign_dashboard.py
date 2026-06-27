@@ -698,7 +698,7 @@ class ShActiveCampaignDashboard(models.Model):
                 for contact in contacts:
                     try:
                         email = contact.get('email', '')
-                        contact_id = str(contact['id'])
+                        contact_id = int(contact['id'])
                         
                         # Search by AC ID first, then Email
                         existing = self.env['res.partner'].search([('sh_ac_contact_id', '=', contact_id)], limit=1)
@@ -715,6 +715,7 @@ class ShActiveCampaignDashboard(models.Model):
                             existing.write(vals)
                         else:
                             existing = self.env['res.partner'].create(vals)
+                            self.env.cr.commit()
                         self._sync_contact_tags_from_ac(client, existing)
                         processed += 1
                     except Exception as e:
@@ -920,7 +921,7 @@ class ShActiveCampaignDashboard(models.Model):
             return False
 
         # 1. Search for existing partner by AC ID
-        partner = self.env['res.partner'].sudo().search([('sh_ac_contact_id', '=', str(contact_id))], limit=1)
+        partner = self.env['res.partner'].sudo().search([('sh_ac_contact_id', '=', contact_id)], limit=1)
         if partner:
             return partner
 
@@ -943,14 +944,14 @@ class ShActiveCampaignDashboard(models.Model):
                     'name': name,
                     'email': email,
                     'phone': phone,
-                    'sh_ac_contact_id': str(contact_id),
+                    'sh_ac_contact_id': (contact_id),
                 }
 
                 if partner:
                     partner.sudo().write(vals)
                 else:
                     partner = self.env['res.partner'].sudo().create(vals)
-
+                    self.env.cr.commit()
                 return partner
         except Exception as e:
             _logger.error('Failed to resolve AC contact ID %s: %s', contact_id, str(e))
@@ -995,7 +996,7 @@ class ShActiveCampaignDashboard(models.Model):
                     break
                 
                 for deal in deals:
-                    deal_id = str(deal['id'])
+                    deal_id = int(deal['id'])
                     existing = self.env['crm.lead'].search([('sh_ac_deal_id', '=', deal_id)], limit=1)
                     
                     # Simple stage mapping (can be enhanced with a real mapping table)
@@ -1006,13 +1007,13 @@ class ShActiveCampaignDashboard(models.Model):
                     partner = False
                     ac_contact_id = deal.get('contact', '')
                     if ac_contact_id:
-                        partner = self._resolve_and_link_ac_contact(client, ac_contact_id)
+                        partner = self._resolve_and_link_ac_contact(client, int(ac_contact_id))
                     
                     vals = {
                         'name': deal.get('title', 'AC Deal ' + deal_id),
                         'expected_revenue': float(deal.get('value', 0)) / 100,
                         'sh_ac_deal_id': deal_id,
-                        'sh_ac_contact_id': str(ac_contact_id) if ac_contact_id else False,
+                        'sh_ac_contact_id': int(ac_contact_id) if ac_contact_id else False,
                         'sh_is_ac_lead': True,
                         'type': 'opportunity',
                     }
@@ -1030,6 +1031,7 @@ class ShActiveCampaignDashboard(models.Model):
                         existing.write(vals)
                     else:
                         self.env['crm.lead'].create(vals)
+                        self.env.cr.commit()
                     processed += 1
                 
                 self.env.cr.commit()
@@ -1247,7 +1249,7 @@ class ShActiveCampaignDashboard(models.Model):
             if resp.get('contact', {}).get('id'):
                 # sudo is required to write ActiveCampaign contact details to the partner record
                 partner.sudo().write({
-                    'sh_ac_contact_id': str(resp['contact']['id']),
+                    'sh_ac_contact_id': int(resp['contact']['id']),
                 })
                 self._sync_contact_tags_to_ac(client, partner)
         except Exception as e:
@@ -1315,7 +1317,7 @@ class ShActiveCampaignDashboard(models.Model):
                 }
                 resp = client.post('/api/3/contact/sync', json=payload)
                 if resp.get('contact', {}).get('id'):
-                    partner.sh_ac_contact_id = str(resp['contact']['id'])
+                    partner.sh_ac_contact_id = int(resp['contact']['id'])
                     self._sync_contact_tags_to_ac(client, partner)
                     processed += 1
             except Exception as e:
@@ -1492,6 +1494,7 @@ class ShActiveCampaignDashboard(models.Model):
                                 'email': email,
                                 'phone': lead.phone,
                             })
+                            self.env.cr.commit()
                         # Link partner back to the lead
                         lead.sudo().write({'partner_id': partner.id})
 
@@ -1557,7 +1560,7 @@ class ShActiveCampaignDashboard(models.Model):
                 else:
                     resp = client.post('/api/3/deals', json=payload)
                 if resp and resp.get('deal', {}).get('id'):
-                    lead.sh_ac_deal_id = str(resp['deal']['id'])
+                    lead.sh_ac_deal_id = int(resp['deal']['id'])
                     lead.sh_is_ac_lead = True
                     processed += 1
                 else:
@@ -1846,13 +1849,13 @@ class ShActiveCampaignDashboard(models.Model):
         self.ensure_one()
         partner = False
         contact_data = self._webhook_get_payload_data(payload, 'contact')
-        ac_contact_id = str(
+        ac_contact_id = int(
             contact_data.get('id')
             or payload.get('contact_id')
             or payload.get('contactId')
             or payload.get('id')
             or ''
-        ).strip()
+        )
         email = (contact_data.get('email') or payload.get('email') or '').strip()
         if ac_contact_id:
             partner = self.env['res.partner'].sudo().search(
@@ -1940,6 +1943,7 @@ class ShActiveCampaignDashboard(models.Model):
             partner.sudo().write(vals)
         else:
             partner = self.env['res.partner'].sudo().create(vals)
+            self.env.cr.commit()
         self._webhook_sync_contact_tags(payload, partner)
         return partner
 
@@ -1948,13 +1952,13 @@ class ShActiveCampaignDashboard(models.Model):
         self.ensure_one()
         client = self._get_ac_client(self.sh_company_id)
         deal_data = self._webhook_get_payload_data(payload, 'deal')
-        deal_id = str(
+        deal_id = int(
             deal_data.get('id')
             or payload.get('deal_id')
             or payload.get('dealId')
             or payload.get('id')
             or ''
-        ).strip()
+        )
         deal_payload = {}
         if deal_id:
             deal_payload = self._webhook_fetch_deal_payload(client, deal_id)
@@ -1988,7 +1992,7 @@ class ShActiveCampaignDashboard(models.Model):
         if contact_id:
             if isinstance(contact_id, dict):
                 contact_id = contact_id.get('id') or contact_id.get('contact_id') or contact_id.get('contactId')
-            partner = self._resolve_and_link_ac_contact(client, contact_id)
+            partner = self._resolve_and_link_ac_contact(client, int(contact_id))
         else:
             email = (
                 contact_data.get('email')
@@ -2007,6 +2011,7 @@ class ShActiveCampaignDashboard(models.Model):
                         'email': email,
                         'phone': contact_data.get('phone') or contact_data.get('phone_number') or '',
                     })
+                    self.env.cr.commit()
 
         contact_name = (
             self._webhook_get_string(contact_data, 'name')
@@ -2040,7 +2045,7 @@ class ShActiveCampaignDashboard(models.Model):
         if deal_id:
             vals['sh_ac_deal_id'] = deal_id
         if contact_id:
-            vals['sh_ac_contact_id'] = str(contact_id)
+            vals['sh_ac_contact_id'] = int(contact_id)
         if contact_name:
             vals['contact_name'] = contact_name
         if contact_email:
@@ -2078,6 +2083,7 @@ class ShActiveCampaignDashboard(models.Model):
                 self._webhook_append_description(existing, deal_note)
             return existing
         lead = self.env['crm.lead'].sudo().create(vals)
+        self.env.cr.commit()
         if deal_note:
             self._webhook_append_description(lead, deal_note)
         return lead
@@ -2088,7 +2094,7 @@ class ShActiveCampaignDashboard(models.Model):
         client = self._get_ac_client(self.sh_company_id)
         note_data = self._webhook_get_payload_data(payload, 'note')
         deal_data = self._webhook_get_payload_data(payload, 'deal')
-        deal_id = str(
+        deal_id = int(
             deal_data.get('id')
             or note_data.get('deal')
             or note_data.get('deal_id')
@@ -2097,7 +2103,7 @@ class ShActiveCampaignDashboard(models.Model):
             or payload.get('dealId')
             or payload.get('deal')
             or ''
-        ).strip()
+        )
         note_text = (
             note_data.get('text')
             or note_data.get('note')
