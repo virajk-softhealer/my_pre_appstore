@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mailing_list_form_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">mailing.list.form.inherit.sh.ac</field>
+        <field name="model">mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.mailing_list_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <field name="sh_ac_list_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mailing_list_tree_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">mailing.list.tree.inherit.sh.ac</field>
+        <field name="model">mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.mailing_list_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="sh_ac_list_id" optional="show" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="mailing_list_view_search_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">mailing.list.search.inherit.sh.ac</field>
+        <field name="model">mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.mailing_list_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sh_ac_list_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter string="ActiveCampaign Mailing Lists" name="ac_mailing_lists" domain="[('sh_ac_list_id', '!=', False)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sh_active_campaign_entity_contacts" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Contacts</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="domain">[['sh_ac_contact_id', '!=', False]]</field>
+            <field name="icon">fa-users</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_lists" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Lists</field>
+            <field name="model_id" ref="mass_mailing.model_mailing_list"/>
+            <field name="domain">[['sh_ac_list_id', '!=', False]]</field>
+            <field name="icon">fa-list</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_tags" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Tags</field>
+            <field name="model_id" ref="base.model_res_partner_category"/>
+            <field name="domain">[['sh_ac_tag_id', '!=', False]]</field>
+            <field name="icon">fa-tags</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_deals" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Deals</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="domain">[['sh_ac_deal_id', '!=', False]]</field>
+            <field name="icon">fa-funnel</field>
+            <field name="sequence">4</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_campaigns" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Campaigns</field>
+            <field name="model_id" ref="sh_active_campaign.model_sh_active_campaign_campaign"/>
+            <field name="domain">[['sh_ac_campaign_id', '!=', False]]</field>
+            <field name="icon">fa-bullhorn</field>
+            <field name="sequence">5</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_forms" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Forms</field>
+            <field name="model_id" ref="sh_active_campaign.model_sh_active_campaign_form"/>
+            <field name="domain">[['sh_ac_form_id', '!=', False]]</field>
+            <field name="icon">fa-file-text</field>
+            <field name="sequence">6</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_sync_logs" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Sync Logs</field>
+            <field name="model_id" ref="sh_active_campaign.model_sh_active_campaign_log"/>
+            <field name="domain">[]</field>
+            <field name="icon">fa-history</field>
+            <field name="sequence">7</field>
+        </record>
+
+        <record id="sh_active_campaign_entity_sync_queue" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="name">Sync Queue</field>
+            <field name="model_id" ref="sh_active_campaign.model_sh_active_campaign_sync_queue"/>
+            <field name="domain">[]</field>
+            <field name="icon">fa-list-ol</field>
+            <field name="sequence">8</field>
+        </record>
+    </data>
+</odoo>

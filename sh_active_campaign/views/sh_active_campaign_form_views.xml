@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_form_list_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.form.list</field>
+        <field name="model">sh.active.campaign.form</field>
+        <field name="arch" type="xml">
+            <list string="Active Campaign Forms" create="false">
+                <field name="sh_form_name"/>
+                <field name="sh_creation_date"/>
+                <field name="sh_actions"/>
+                <field name="sh_company_id" groups="base.group_multi_company"/>
+                <field name="sh_ac_form_id" string="Ac Form ID"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sh_ac_form_form_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.form.form</field>
+        <field name="model">sh.active.campaign.form</field>
+        <field name="arch" type="xml">
+            <form string="AC Form" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group string="Basic Info">
+                            <field name="sh_form_name"/>
+                            <field name="sh_ac_form_id"/>
+                            <field name="sh_creation_date"/>
+                        </group>
+                        <group string="Overview">
+                            <field name="sh_actions"/>
+                            <field name="sh_company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Submission Actions" name="submission_actions">
+                            <field name="sh_action_ids" readonly="1">
+                                <list string="Actions" editable="bottom">
+                                    <field name="sh_type" string="Action Type"/>
+                                    <field name="sh_email"/>
+                                    <field name="sh_tag_id"/>
+                                    <field name="sh_list_id"/>
+                                    <field name="sh_pipeline_id"/>
+                                    <field name="sh_stage"/>
+                                    <field name="sh_deal_currency"/>
+                                    <field name="sh_deal_value"/>
+                                    <field name="sh_deal_title"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_ac_form_search_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.form.search</field>
+        <field name="model">sh.active.campaign.form</field>
+        <field name="arch" type="xml">
+            <search string="Forms">
+                <field name="sh_form_name" string="Form Name"/>
+                <field name="sh_ac_form_id" string="AC Form ID"/>
+                <filter string="Creation Date" name="filter_creation_date" date="sh_creation_date"/>
+                <group>
+                    <filter string="Creation Date" name="group_by_date" context="{'group_by': 'sh_creation_date'}"/>
+                    <filter string="Company" name="group_by_company" context="{'group_by': 'sh_company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

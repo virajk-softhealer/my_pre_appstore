@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_message_wizard_form_view" model="ir.ui.view">
+        <field name="name">sh.ac.message.wizard.form</field>
+        <field name="model">sh.ac.message.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Message">
+                <sheet>
+                    <div class="text-center">
+                        <field name="is_success" invisible="1"/>
+                        <div invisible="not is_success">
+                            <span class="fa fa-check-circle text-success" style="font-size: 3rem;" title="Success"/>
+                        </div>
+                        <div invisible="is_success">
+                            <span class="fa fa-times-circle text-danger" style="font-size: 3rem;" title="Error"/>
+                        </div>
+                        <div class="mt-3">
+                            <field name="message" nolabel="1" readonly="1"/>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="OK" class="btn btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

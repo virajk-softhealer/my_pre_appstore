@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_category_form_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">res.partner.category.form.inherit.sh.ac</field>
+        <field name="model">res.partner.category</field>
+        <field name="inherit_id" ref="base.view_partner_category_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="sh_ac_tag_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_category_list_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">res.partner.category.list.inherit.sh.ac</field>
+        <field name="model">res.partner.category</field>
+        <field name="inherit_id" ref="base.view_partner_category_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="sh_ac_tag_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="res_partner_category_view_search_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">res.partner.category.search.inherit.sh.ac</field>
+        <field name="model">res.partner.category</field>
+        <field name="inherit_id" ref="base.res_partner_category_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sh_ac_tag_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter string="ActiveCampaign Tags" name="ac_tags" domain="[('sh_ac_tag_id', '!=', False)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

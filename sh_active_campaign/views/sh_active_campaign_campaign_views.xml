@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_campaign_list_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.campaign.list</field>
+        <field name="model">sh.active.campaign.campaign</field>
+        <field name="arch" type="xml">
+            <list string="Active Campaign Campaigns" create="false">
+                <field name="sh_campaign_name"/>
+                <field name="sh_campaign_lists" string="Campaign's Lists"/>
+                <field name="sh_campaign_type"/>
+                <field name="sh_campaign_status" widget="badge"
+                       decoration-success="sh_campaign_status == 'completed'"
+                       decoration-info="sh_campaign_status == 'sending'"
+                       decoration-muted="sh_campaign_status == 'draft'"/>
+                <field name="sh_ac_campaign_id" string="AC Campaign ID"/>
+                <field name="sh_company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sh_ac_campaign_form_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.campaign.form</field>
+        <field name="model">sh.active.campaign.campaign</field>
+        <field name="arch" type="xml">
+            <form string="AC Campaign" create="false" edit="false">
+                <header>
+                    <field name="sh_campaign_status" widget="statusbar" statusbar_visible="draft,scheduled,sending,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="sh_campaign_name"/>
+                            <field name="sh_campaign_type"/>
+                        </group>
+                        <group>
+                            <field name="sh_ac_campaign_id" string="AC Campaign ID"/>
+                            <field name="sh_campaign_lists"/>
+                            <field name="sh_company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_ac_campaign_search_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.campaign.search</field>
+        <field name="model">sh.active.campaign.campaign</field>
+        <field name="arch" type="xml">
+            <search string="Campaigns">
+                <field name="sh_campaign_name" string="Campaign Name"/>
+                <field name="sh_ac_campaign_id" string="AC Campaign ID"/>
+                <filter string="Draft" name="draft" domain="[('sh_campaign_status', '=', 'draft')]"/>
+                <filter string="Scheduled" name="scheduled" domain="[('sh_campaign_status', '=', 'scheduled')]"/>
+                <filter string="Sending" name="sending" domain="[('sh_campaign_status', '=', 'sending')]"/>
+                <filter string="Completed" name="completed" domain="[('sh_campaign_status', '=', 'completed')]"/>
+                <separator/>
+                <filter string="Creation Date" name="filter_create_date" date="create_date"/>
+                <group>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'sh_campaign_status'}"/>
+                    <filter string="Type" name="group_by_type" context="{'group_by': 'sh_campaign_type'}"/>
+                    <filter string="Company" name="group_by_company" context="{'group_by': 'sh_company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sh_active_campaign_connector" model="sh.integration.connector">
+            <field name="name">ActiveCampaign Odoo Connector</field>
+            <field name="technical_name">sh_active_campaign</field>
+            <field name="sequence">10</field>
+            <field name="color">0</field>
+
+            <field name="config_model">res.company</field>
+            <field name="connected_field">sh_ac_api_key</field>
+
+            <field name="log_model">sh.active.campaign.log</field>
+            <field name="log_date_field">create_date</field>
+            <field name="log_state_field">sh_status</field>
+            <field name="log_error_value">failed</field>
+            <field name="log_message_field">sh_message</field>
+
+            <field name="queue_model">sh.active.campaign.sync.queue</field>
+            <field name="queue_state_field">sh_state</field>
+            <field name="queue_pending_value">draft</field>
+            <field name="queue_done_value">done</field>
+            <field name="queue_error_value">failed</field>
+
+            <field name="dashboard_action">sh_active_campaign.sh_ac_dashboard_server_action</field>
+            <field name="config_action">sh_active_campaign.sh_ac_config_settings_action</field>
+
+            <field name="menu_name">Active Campaign</field>
+            <field name="menu_sequence">10</field>
+        </record>
+
+        <record id="base.group_system" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('sh_active_campaign.group_sh_active_campaign_manager'))]"/>
+        </record>
+    </data>
+
+    <data noupdate="0">
+        <function model="sh.integration.connector" name="action_sync_menus_by_module">
+            <value>sh_active_campaign</value>
+        </function>
+    </data>
+</odoo>

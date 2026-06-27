@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Actions first to avoid External ID errors -->
+    
+    <record id="sh_ac_dashboard_action" model="ir.actions.act_window">
+        <field name="name">Sync Dashboard</field>
+        <field name="res_model">sh.active.campaign.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="sh_ac_dashboard_server_action" model="ir.actions.server">
+        <field name="name">Sync Dashboard</field>
+        <field name="model_id" ref="sh_active_campaign.model_sh_active_campaign_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_open_dashboard()
+        </field>
+    </record>
+
+    <record id="sh_ac_lists_action" model="ir.actions.act_window">
+        <field name="name">Mailing Lists</field>
+        <field name="res_model">mailing.list</field>
+        <field name="view_mode">kanban,list,form</field>
+        <!-- <field name="domain">[('sh_ac_list_id','!=',False)]</field> -->
+        <!-- <field name="context">{'search_default_sh_ac_list_id': 1}</field> -->
+    </record>
+
+    <record id="sh_ac_contacts_action" model="ir.actions.act_window">
+        <field name="name">Contacts</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'default_sh_is_ac_contact': True}</field>
+    </record>
+
+    <record id="sh_ac_campaign_action" model="ir.actions.act_window">
+        <field name="name">Campaigns</field>
+        <field name="res_model">sh.active.campaign.campaign</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="sh_ac_tag_action" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">res.partner.category</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="domain">[('sh_ac_tag_id','!=',False)]</field> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Import Tags from ActiveCampaign first.
+            </p>
+        </field>
+    </record>
+
+    <record id="sh_ac_deals_action" model="ir.actions.act_window">
+        <field name="name">Deals</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('type', '=', 'opportunity')]</field>
+        <field name="context">{'default_type': 'opportunity'}</field>
+    </record>
+
+    <record id="sh_ac_form_action" model="ir.actions.act_window">
+        <field name="name">Forms</field>
+        <field name="res_model">sh.active.campaign.form</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('sh_parent_form_id', '=', False)]</field>
+    </record>
+
+    <record id="sh_ac_log_action" model="ir.actions.act_window">
+        <field name="name">Sync Logs</field>
+        <field name="res_model">sh.active.campaign.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menus -->
+
+    <!-- Root menu -->
+    <menuitem id="sh_ac_root_menu"
+              name="Active Campaign"
+              sequence="90"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+    <!-- Dashboard -->
+    <menuitem id="sh_ac_menu_dashboard"
+              name="Dashboard"
+              parent="sh_ac_root_menu"
+              action="sh_ac_dashboard_server_action"
+              sequence="10"
+              groups="sh_active_campaign.group_sh_active_campaign_manager"/>
+
+    <!-- Contacts -->
+    <menuitem id="sh_ac_menu_contacts"
+              name="Contacts"
+              parent="sh_ac_root_menu"
+              action="sh_ac_contacts_action"
+              sequence="12"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+    <!-- Tags -->
+    <menuitem id="sh_ac_menu_tags"
+              name="Contact Tags"
+              parent="sh_ac_root_menu"
+              action="sh_ac_tag_action"
+              sequence="20"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+    <!-- Lists -->
+    <menuitem id="sh_ac_menu_lists"
+              name="Mailing Lists"
+              parent="sh_ac_root_menu"
+              action="sh_ac_lists_action"
+              sequence="30"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+    <!-- Deals -->
+    <menuitem id="sh_ac_menu_deals"
+              name="Deals"
+              parent="sh_ac_root_menu"
+              action="sh_ac_deals_action"
+              sequence="40"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+    <!-- Forms -->
+    <menuitem id="sh_ac_menu_forms"
+              name="Forms"
+              parent="sh_ac_root_menu"
+              action="sh_ac_form_action"
+              sequence="50"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+
+    <!-- Campaigns -->
+    <menuitem id="sh_ac_menu_campaigns"
+              name="Campaigns"
+              parent="sh_ac_root_menu"
+              action="sh_ac_campaign_action"
+              sequence="50"
+              groups="sh_active_campaign.group_sh_active_campaign_user"/>
+
+
+
+    <!-- Configuration -->
+    <menuitem id="sh_ac_menu_configuration_root"
+              name="Configuration"
+              parent="sh_ac_root_menu"
+              sequence="100"
+              groups="sh_active_campaign.group_sh_active_campaign_manager"/>
+
+    <record id="sh_ac_config_settings_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'sh_active_campaign', 'bin_size': False}</field>
+    </record>
+
+    <menuitem id="sh_ac_menu_settings"
+              name="Settings"
+              parent="sh_ac_menu_configuration_root"
+              action="sh_ac_config_settings_action"
+              sequence="10"
+              groups="sh_active_campaign.group_sh_active_campaign_manager"/>
+
+    <menuitem id="sh_ac_menu_logs"
+              name="Sync Logs"
+              parent="sh_ac_menu_configuration_root"
+              action="sh_ac_log_action"
+              sequence="20"
+              groups="sh_active_campaign.group_sh_active_campaign_manager"/>
+
+    <menuitem id="sh_ac_menu_queue"
+              name="Sync Queue"
+              parent="sh_ac_menu_configuration_root"
+              action="sh_active_campaign.sh_active_campaign_sync_queue_action"
+              sequence="25"
+              groups="sh_active_campaign.group_sh_active_campaign_manager"/>
+
+    <menuitem id="sh_ac_menu_user_guide"
+              name="User Guide"
+              parent="sh_ac_root_menu"
+              action="sh_active_campaign.sh_ac_user_guide_action"
+              sequence="999"
+              groups="sh_active_campaign.group_sh_active_campaign_manager"/>
+</odoo>

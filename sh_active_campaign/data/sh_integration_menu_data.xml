@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sh_active_campaign_menu_dashboard" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="source_menu_id" ref="sh_active_campaign.sh_ac_menu_dashboard"/>
+            <field name="sequence">1</field>
+            <field name="group_ids" eval="[(4, ref('sh_active_campaign.group_sh_active_campaign_manager'))]"/>
+        </record>
+
+        <record id="sh_active_campaign_menu_configuration" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_active_campaign.sh_active_campaign_connector"/>
+            <field name="source_menu_id" ref="sh_active_campaign.sh_ac_menu_settings"/>
+            <field name="sequence">2</field>
+            <field name="group_ids" eval="[(4, ref('sh_active_campaign.group_sh_active_campaign_manager'))]"/>
+        </record>
+    </data>
+</odoo>

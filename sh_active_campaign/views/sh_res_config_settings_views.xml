@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sh.ac</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Active Campaign" string="Active Campaign" name="sh_active_campaign">
+                    <block title="Active Campaign Settings" name="sh_ac_settings_container">
+                        <div class="row g-0">
+                            <div class="col-12 col-lg-6 pe-lg-4">
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <field name="sh_ac_configuration"/>
+                                        <span class="fw-semibold">Active Campaign Configuration</span>
+                                    </div>
+                                    <div class="text-muted">Configure ActiveCampaign integration</div>
+                                </div>
+                                <div class="content-group" invisible="not sh_ac_configuration">
+                                    <div class="row mt16">
+                                        <div class="col-12 col-lg-6 mb16">
+                                            <label for="sh_ac_url" class="o_form_label">URL</label>
+                                            <field name="sh_ac_url" placeholder="https://youraccountname.api-us1.com" class="w-100"/>
+                                        </div>
+                                        <div class="col-12 col-lg-6 mb16">
+                                            <label for="sh_ac_api_key" class="o_form_label">API Key</label>
+                                            <field name="sh_ac_api_key" password="True" class="w-100"/>
+                                        </div>
+                                    </div>
+                                    <div class="mt16">
+                                        <button name="action_test_connection"
+                                                type="object"
+                                                string="Test Connection"
+                                                class="btn btn-primary"
+                                                icon="fa-plug"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 ps-lg-4 mt-4 mt-lg-0">
+                                <div class="mb-3">
+                                    <div class="fw-semibold mb-1">Webhook Section</div>
+                                    <div class="text-muted">
+                                        Turn this on to sync ActiveCampaign changes into Odoo in real time.
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <field name="sh_ac_enable_webhook_processing"/>
+                                    <label for="sh_ac_enable_webhook_processing" class="mb-0 fw-semibold">
+                                        Enable webhook processing
+                                    </label>
+                                </div>
+                                <div class="mb-3" invisible="not sh_ac_enable_webhook_processing">
+                                    <label for="sh_ac_access_token" class="o_form_label">Webhook Access Token</label>
+                                    <field name="sh_ac_access_token" readonly="1" class="w-100"/>
+                                </div>
+                                <div invisible="not sh_ac_enable_webhook_processing">
+                                    <label for="sh_ac_webhook_url" class="o_form_label">Webhook URL</label>
+                                    <field name="sh_ac_webhook_url" readonly="1" widget="CopyClipboardChar" class="w-100"/>
+                                    <div class="text-muted mt-1">
+                                        Use this full URL in ActiveCampaign.
+                                    </div>
+                                </div>
+                                <div class="mt-3" invisible="not sh_ac_enable_webhook_processing">
+                                    <button name="action_generate_sh_ac_webhook_token"
+                                            type="object"
+                                            string="Regenerate Webhook Token"
+                                            class="btn btn-secondary"/>
+                                </div>
+                                <div class="text-warning mt-2" invisible="not sh_ac_webhook_url_warning">
+                                    <field name="sh_ac_webhook_url_warning" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
