@@ -22,10 +22,7 @@
                             <field name="client_secret" password="1" readonly ="state == 'authorized'" invisible="1"></field>
                         </group>
                         <group>
-                            <!-- <field name="imp_lead"/> -->
-                            <!-- <field name="auto_imp"/> -->
                             <field name="redirect_url" widget="CopyClipboardChar" invisible="1"></field>
-                            <!-- <field name="scope"></field> -->
                             <field name="scope_ids" widget="many2many_tags" invisible="1"></field>
                         </group>
                     </group>
@@ -39,7 +36,6 @@
                         <list editable="bottom"  decoration-success="state=='success'" decoration-danger="state=='error'">
                             <field name="name"/>
                             <field name="description"/>
-                            <!-- <field name="datetime"/> -->
                             <field name="create_date"></field>
                             <field name="log_type" widget="badge"></field>
                             <field name="company_id"/>
@@ -83,7 +79,7 @@
         </field>
     </record>
     <record id="sh_base_config_form_view_action" model="ir.actions.act_window">
-        <field name="name">API integration</field>
+        <field name="name">Integration Hub</field>
         <field name="res_model">sh.integration.config</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="context">{'create': 0}</field>

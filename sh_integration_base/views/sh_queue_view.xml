@@ -8,7 +8,6 @@
             <list string="Queue list" decoration-warning="state=='delete'" decoration-primary="state=='draft'" decoration-success="state=='done'" decoration-danger="state=='error'">
                 <field name="name"></field>
                 <field name="remote_id"></field>
-                <!-- <field name="last_updated"></field> -->
                 <field name="note"></field>
                 <field name="res_model"></field>
                 <field name="res_id"></field>
@@ -17,6 +16,7 @@
             </list>
         </field>
     </record>
+
     <!-- Form View -->
     <record id="sh_queue_view_form" model="ir.ui.view">
         <field name="name">sh.queue.view.form</field>
@@ -51,6 +51,7 @@
             </form>
         </field>
     </record>
+
     <!-- Search Filter -->
     <record id="sh_queue_search_view" model="ir.ui.view">
         <field name="name">sh.queue.search.view</field>
@@ -64,15 +65,11 @@
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]" />
                 <filter string="Deleted" name="delete" domain="[('state', '=', 'delete')]" />
                 <filter string="Error" name="error" domain="[('state', '=', 'error')]" />
-                <group name="group" string="Group By">
+                <group>
                     <filter name="status_filter" string="Status" context="{'group_by':'state'}" />
                 </group>
             </search>
         </field>
     </record>
-    <!-- <record id="sh_queue_action" model="ir.actions.act_window">
-        <field name="name">Queue</field>
-        <field name="res_model">sh.queue</field>
-        <field name="view_mode">list,form</field>
-    </record> -->
+
 </odoo>

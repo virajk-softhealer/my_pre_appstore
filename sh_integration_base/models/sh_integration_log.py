@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) Softhealer Technologies.
+# Copyright (C) Softhealer Technologies Pvt. Ltd.
 
 from odoo import models,fields,api
-from odoo.exceptions import ValidationError
 
 
 class BaseLog(models.Model):
+    """A model to store log entries for third-party integrations."""
     _name = 'sh.integration.log'
     _description = 'Log'
     _order = 'id desc'
@@ -18,18 +18,18 @@ class BaseLog(models.Model):
                             default=lambda self: self.env.user.company_id,
                             readonly=True
                             )
-    # datetime = fields.Datetime("Date & Time")
     state = fields.Selection([('success','Success'),('error','Failed'),('info','Information')],readonly=True,string="State")
     config_id = fields.Many2one("sh.integration.config", string="Integration Config",readonly=True)
     response=fields.Text("Response",readonly=True)
-    
+
     log_type = fields.Selection(
         string='Log Type',
         selection=[('auth', 'Authorize'), ('token', 'Token')],
         readonly=True,
     )
-    
+
     def action_open_log_record(self):
+        """Opens the log record in a new window."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -37,11 +37,12 @@ class BaseLog(models.Model):
             'view_mode': 'form',
             'res_model': 'sh.integration.log',
             'res_id': self.id,
-            'target': 'new',  
+            'target': 'new',
         }
-        
+
     @api.model_create_multi
     def create(self, vals_list):
+        """Overrides the create method to assign a unique sequence number to the log entry."""
         for vals in vals_list:
             if vals.get('name', ('New')) == ('New'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('sh.log.seq')

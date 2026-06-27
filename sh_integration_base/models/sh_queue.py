@@ -1,8 +1,11 @@
-from odoo import _, api, fields, models
+# -*- coding: utf-8 -*-
+# Copyright (C) Softhealer Technologies Pvt. Ltd.
+from odoo import _, fields, models
 from odoo.exceptions import ValidationError
 
 
 class ShQueue(models.Model):
+    """A model to manage and process queue entries for third-party integrations."""
     _name = 'sh.queue'
     _description = 'Sh Queue management'
 
@@ -43,13 +46,13 @@ class ShQueue(models.Model):
         readonly=True,
     )
 
-    # last_updated = fields.Datetime(string="Last Updated")
 
     def _mass_action_import_from_queue(self):
+        """A placeholder method for mass-importing records from the queue."""
         print("\n\n\n\t--------------> 41 SUPER",)
-        
+
     def view_record(self):
-        '''View Record from queue to Res view '''
+        """Opens the record associated with the queue entry in a new window."""
         if self.res_model and self.res_id:
             return {
                 'name': _('sh_queue_record_view'),
@@ -63,4 +66,4 @@ class ShQueue(models.Model):
                 'context': {'edit': True, 'create': True, 'search_default_active': 1},
             }
         else:
-            raise ValidationError("res_model & res_id missing !")   
+            raise ValidationError("res_model & res_id missing !")

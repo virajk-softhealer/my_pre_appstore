@@ -30,7 +30,11 @@
             </list>
         </field>
     </record>
+
+
     <!-- ==========================Action============ -->
+
+    
     <!-- <record id="sh_api_scope_action" model="ir.actions.act_window">
         <field name="name">API Scope </field>
         <field name="res_model">sh.api.scope</field>

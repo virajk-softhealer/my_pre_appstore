@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) Softhealer Technologies.
+# Copyright (C) Softhealer Technologies Pvt. Ltd.
 
 from datetime import datetime
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
 
 class BaseConfigration(models.Model):
+    """A model to manage and configure integrations with third-party services."""
     _name = 'sh.integration.config'
     _description = 'Configration'
     _inherit = [ 'mail.thread', 'mail.activity.mixin']
@@ -14,12 +15,10 @@ class BaseConfigration(models.Model):
     name= fields.Char(string="Name")
     sh_type = fields.Selection(selection=[],string='Type',tracking=True)
     company_id =fields.Many2one("res.company",string="Company", default=lambda self: self.env.company,tracking=True)
-    # TODO: 
+    # TODO:
     log_ids = fields.One2many('sh.integration.log', 'config_id', string="Log History")
     # TODO: Move in india-mart or any respective module
-    # imp_lead =fields.Boolean("Import Leads")
     auto_imp=fields.Boolean("Auto Import")
-    # scope = fields.Char(compute='_compute_scope' )
     scope_ids = fields.Many2many('sh.api.scope',compute='_compute_scope' )
     state = fields.Selection([
         ("draft", "Draft"),
@@ -47,27 +46,31 @@ class BaseConfigration(models.Model):
 
     @api.depends('sh_type')
     def _compute_redirect_url(self):
+        """Computes the redirect URL for OAuth authentication based on the integration type."""
         for record in self:
-            
+
             if self.sh_type and self.create_uid:
                 base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 record.redirect_url = f"{base_url}/sh_integration_base/auth/{self._origin.id}"
             else:
-                record.redirect_url = "" 
+                record.redirect_url = ""
 
     @api.constrains('company_id', 'sh_type')
     def _check_unique_company_type(self):
+        """Ensures that there is only one configuration per company and integration type."""
         for rec in self:
             existing = self.search([('company_id', '=', rec.company_id.id),('sh_type', '=', rec.sh_type),('id', '!=', rec.id)], limit=1)
             if existing:
                 raise ValidationError("A configuration already exists for this company and type.")
 
     def authorize_btn(self):
+        """Handles the authorization process for the integration."""
         if not self.sh_type:
             raise ValidationError("Plz Select the type.")
         return True
-    
+
     def generate_token(self,auth_code):
+        """Generates an access token using the provided authorization code."""
         required_fields = {
             'client_id': self.client_id,
             'client_secret': self.client_secret,
@@ -79,7 +82,7 @@ class BaseConfigration(models.Model):
         if missing_fields:
             raise ValidationError(f"Missing required fields: {missing_fields}")
         return True
-    
+
     def _compute_scope(self):
         """
         Add scope according to the module like Google Task,Xero, etc.
@@ -100,20 +103,15 @@ class BaseConfigration(models.Model):
 
         """
         for rec in self:
-            # rec.scope = ''
             rec.scope_ids = False
-            # if rec.sh_type == '':
-            #     scope = ','.join([scope_obj.name for scope_obj in self.env["sh.api.scope"].search([('name','ilike',rec.sh_type)])])
-            #     rec.scope = scope
-            
     # -------------------------------------------------------
     #  Create the log
     # -------------------------------------------------------
 
     def _log(self, message, log_type=False, state=False,response=False):
+        """Creates a log entry for the integration."""
         self.env['sh.integration.log'].create({
             "description": message,
-            # "datetime": datetime.now(),
             "state": state,
             "config_id": self.id,
             "response": response,

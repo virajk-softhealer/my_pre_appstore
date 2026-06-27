@@ -5,7 +5,7 @@
         <field name="name">sh.integration.log.form</field>
         <field name="model">sh.integration.log</field>
         <field name="arch" type="xml">
-            <form string="Lead Log Config">
+            <form string="Integration Log">
                 <header>
                     <field name="state" widget="statusbar" />
                 </header>
@@ -17,7 +17,6 @@
                             <field name="create_date"></field>
                             <field name="log_type" />
                             <field name="company_id"/>
-                            <!-- <field name="datetime"/> -->
                             <field name="response" widget="text"/>
                             <field name="config_id"/>
                         </group>
@@ -35,7 +34,6 @@
                 <field name="name" />
                 <field name="description" widget="text"></field>
                 <field name="create_date"></field>
-                <!-- <field name="datetime"/> -->
                 <field name="log_type" widget="badge" ></field>
                 <field name="company_id" optional="hide"/>
                 <field name="config_id"/>
@@ -57,16 +55,23 @@
                 <filter string="Success" name="success" domain="[('state', '=', 'success')]" />
                 <filter string="Error" name="error" domain="[('state', '=', 'error')]" />
                 <filter string="Authorization" name="auth" domain="[('log_type', '=', 'auth')]" />
-                <group name="group" string="Group By">
+                <group>
                     <filter name="status_filter" string="Status" context="{'group_by':'state'}" />
                     <filter name="log_type_filter" string="Log Type" context="{'group_by':'log_type'}" />
                 </group>
             </search>
         </field>
     </record>
+
+
+
+
+
+
+
     <!-- ====================== ACTION =================== -->
     <record id="sh_integration_view_action" model="ir.actions.act_window">
-        <field name="name">Log</field>
+        <field name="name">Integration Logs</field>
         <field name="res_model">sh.integration.log</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'edit': 0,'create': 0}</field>
