@@ -7,13 +7,13 @@ from odoo import models, fields
 class CrmLead(models.Model):
     _inherit = 'crm.lead'
 
-    sh_ac_deal_id = fields.Char(
+    sh_ac_deal_id = fields.Integer(
         string='AC Deal ID',
         copy=False,
         index=True,
         help='ActiveCampaign Deal ID linked to this CRM opportunity.'
     )
-    sh_ac_contact_id = fields.Char(
+    sh_ac_contact_id = fields.Integer(
         string='AC Contact ID',
         copy=False,
         index=True,

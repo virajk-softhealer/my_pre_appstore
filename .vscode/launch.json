@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Odoo18",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "/Users/virajkothari/Documents/odoo18/odoo/odoo-bin",
+      "python": "/Users/virajkothari/Documents/odoo18/env/bin/python",
+      "args": [
+        "--addons-path",
+        "/Users/virajkothari/Documents/odoo18/odoo/addons,/Users/virajkothari/Documents/Enterprise/v_18/enterprise,/Users/virajkothari/Documents/Project/my_pre_appstore",
+        "-u",
+        "sh_active_campaign",
+        // "-d",
+        // "sh_freshdesk_connector_v18",
+        "-c",
+        ".vscode/odoo.conf",
+        "--xmlrpc-port",
+        "8018",
+        "--dev",
+        "all",
+        "--limit-time-real",
+        "1000000000000"
+      ],
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/Users/virajkothari/Documents/odoo18/odoo",
+        "/Users/virajkothari/Documents/odoo18/odoo/addons"
+    ],
+    "python.analysis.extraPaths": [
+        "/Users/virajkothari/Documents/odoo18/odoo",
+        "/Users/virajkothari/Documents/odoo18/odoo/addons"
+    ]
+}

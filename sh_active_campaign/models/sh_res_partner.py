@@ -7,7 +7,7 @@ from odoo import models, fields, api
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    sh_ac_contact_id = fields.Char(
+    sh_ac_contact_id = fields.Integer(
         string='ActiveCampaign Contact ID',
         copy=False,
         index=True,

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- MENU:BASE -->
+    <menuitem 
+        id="sh_base_config_root"
+        sequence="1" 
+        name="API integration" 
+        groups="sh_integration_base.sh_api_group"/>
+    <!-- API integration -->
+    <menuitem 
+        id="sh_API_integration_base_view_menuitem" 
+        name="API integration" 
+        action="sh_base_config_form_view_action" 
+        parent="sh_base_config_root"  
+        groups="sh_integration_base.sh_api_group"  
+        sequence="1"/>
+    <!-- Configration -->
+    <menuitem 
+        id="sh_base_config_form_view_menuitem" 
+        name="Configration" 
+        parent="sh_base_config_root"  
+        groups="sh_integration_base.sh_api_group"  
+        sequence="90"/>
+    <!-- Configration SUBMENU -->
+    <!-- API SCOPE -->
+    <!-- <menuitem
+        id="sh_api_scope_menu"
+        name="Api Scope"
+        action="sh_api_scope_action"
+        parent="sh_base_config_form_view_menuitem"
+        sequence="1"/> -->
+    <!-- History -->
+    <!-- <menuitem 
+        id="sh_base_lead_list_view_menu" 
+        action="sh_indiamart_form_view_action" 
+        parent="sh_base_config_root" 
+        sequence="2" 
+        groups="sh_integration_base.sh_api_group"/> -->
+    <!-- Log -->
+    <menuitem 
+        id="sh_base_integration_log_view_menu" 
+        name="Log"
+        action="sh_integration_view_action" 
+        parent="sh_base_config_root" 
+        sequence="3" 
+        groups="sh_integration_base.sh_api_group"/>
+    <!-- QUEUE -->
+    <menuitem 
+        id="sh_base_queue_view_menu" 
+        name="Queue"
+        parent="sh_base_config_root" 
+        sequence="3" 
+        groups="sh_integration_base.sh_api_group"/>
+</odoo>
