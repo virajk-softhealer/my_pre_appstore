@@ -19,9 +19,6 @@
         <field name="view_id" ref="base.view_server_action_tree"/>
         <field name="search_view_id" ref="base.view_server_action_search"/>
         <field name="domain" eval="[('sh_is_webhook', '=', True)]"/>
-        <!-- <field name="context">{
-            'key':'server_action',
-            'search_default_toplevel_actions': 1,
-        }</field> -->
+        <field name="context">{'default_sh_is_webhook': True}</field>
     </record>
 </odoo>

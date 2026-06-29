@@ -149,15 +149,36 @@ class ShWebhookAction(models.Model):
         
         return final_payload
 
+    def _normalize_headers(self, headers):
+        """Return a requests-safe header mapping."""
+        normalized_headers = {}
+        for key, value in (headers or {}).items():
+            if key in (None, False):
+                continue
+
+            header_key = str(key).strip()
+            if not header_key:
+                continue
+
+            if value in (None, False):
+                value = ''
+
+            if not isinstance(value, (str, bytes)):
+                value = str(value)
+
+            normalized_headers[header_key] = value
+
+        return normalized_headers
+
     def _prepare_headers(self, records):
         """ Prepare the headers for the webhook """
-        headers = {header.key: header.value for header in self.header_ids}
+        headers = self._normalize_headers({header.key: header.value for header in self.header_ids})
         if self.adapt_headers and self.code_headers:
             eval_context = self._get_eval_context(records)
             eval_context['headers'] = headers
             safe_eval(self.code_headers, eval_context, mode='exec')
             headers = eval_context.get('headers', headers)
-        return headers
+        return self._normalize_headers(headers)
 
     def _prepare_url(self, records):
         """ Prepare the URL for the webhook """
