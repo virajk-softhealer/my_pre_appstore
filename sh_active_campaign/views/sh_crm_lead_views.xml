@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_crm_lead_form_view_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.sh.ac</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="active_campaign" string="Active Campaign Details" readonly="1" invisible="not sh_ac_deal_id">
+                    <group>
+                        <group>
+                            <field name="sh_ac_deal_id" readonly="1"/>
+                            <field name="sh_is_ac_lead"  invisible="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_case_tree_view_oppor_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">crm.lead.tree.oppor.inherit.sh.ac</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="sh_ac_deal_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_crm_case_opportunities_filter_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">crm.lead.search.opportunity.inherit.sh.ac</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sh_ac_deal_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='assigned_to_me']" position="before">
+                <filter string="ActiveCampaign Deals" name="ac_deals" domain="[('sh_is_ac_lead', '=', True)]"/>
+                <separator/>
+                <filter string="Not ActiveCampaign Deals" name="ac_deals" domain="[('sh_is_ac_lead', '=', False)]"/>
+                <separator/>
+
+            </xpath>
+            <!-- <xpath expr="//group" position="inside">
+                <filter string="ActiveCampaign Status" name="group_by_ac_deal" context="{'group_by': 'sh_is_ac_lead'}"/>
+            </xpath> -->
+        </field>
+    </record>
+
+</odoo>

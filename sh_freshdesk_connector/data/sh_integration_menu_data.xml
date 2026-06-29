@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Settings menu mirroring -->
+        <record id="sh_freshdesk_menu_settings" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="source_menu_id" ref="sh_freshdesk_connector.sh_freshdesk_config_menu"/>
+            <field name="sequence">1</field>
+            <field name="group_ids" eval="[(4, ref('sh_freshdesk_connector.group_freshdesk_manager'))]"/>
+        </record>
+
+        <!-- Logs menu mirroring -->
+        <record id="sh_freshdesk_menu_logs" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="source_menu_id" ref="sh_freshdesk_connector.menu_sh_freshdesk_sync_log"/>
+            <field name="sequence">2</field>
+            <field name="group_ids" eval="[(4, ref('sh_freshdesk_connector.group_freshdesk_user'))]"/>
+        </record>
+
+        <!-- Queue menu mirroring -->
+        <record id="sh_freshdesk_menu_queue" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="source_menu_id" ref="sh_freshdesk_connector.menu_sh_freshdesk_sync_queue"/>
+            <field name="sequence">3</field>
+            <field name="group_ids" eval="[(4, ref('sh_freshdesk_connector.group_freshdesk_user'))]"/>
+        </record>
+    </data>
+</odoo>

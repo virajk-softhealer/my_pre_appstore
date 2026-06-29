@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_freshdesk_sync_log_view_list" model="ir.ui.view">
+        <field name="name">sh.freshdesk.sync.log.view.list</field>
+        <field name="model">sh.freshdesk.sync.log</field>
+        <field name="arch" type="xml">
+            <list string="Logs" create="false" edit="false"
+                  decoration-danger="status == 'error'" decoration-success="status == 'success'">
+                <field name="sync_date"/>
+                <field name="res_model"/>
+                <field name="partner_id"/>
+                <field name="ticket_id"/>
+                <field name="direction"/>
+                <field name="operation" widget="badge"
+                       decoration-info="operation == 'create'"
+                       decoration-warning="operation == 'update'"
+                       decoration-danger="operation == 'delete'"
+                       optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="status" widget="badge"
+                       decoration-danger="status == 'error'" decoration-success="status == 'success'"/>
+                <field name="message" column_invisible="1"/>
+                <!-- <field name="res_id"/> -->
+            </list>
+        </field>
+    </record>
+
+    <record id="sh_freshdesk_sync_log_view_form" model="ir.ui.view">
+        <field name="name">sh.freshdesk.sync.log.view.form</field>
+        <field name="model">sh.freshdesk.sync.log</field>
+        <field name="arch" type="xml">
+            <form string="Log" create="false" edit="false">
+                <header>
+                    <field name="status" widget="badge"
+                       decoration-danger="status == 'error'" decoration-success="status == 'success'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="res_model" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="partner_id" invisible="not partner_id" options="{'no_create': True}"/>
+                            <field name="ticket_id" invisible="not ticket_id" options="{'no_create': True}"/>
+                            <field name="direction"/>
+                            <field name="res_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="sync_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="operation" widget="badge"
+                                   decoration-info="operation == 'create'"
+                                   decoration-warning="operation == 'update'"
+                                   decoration-danger="operation == 'delete'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Synchronization Details" invisible="not message">
+                            <field name="message" invisible="1"/>
+                            <field name="sh_formatted_message" nolabel="1"/>
+                        </page>
+                        <page string="Error Details" invisible="not error_log">
+                            <field name="error_log" nolabel="1" widget="html"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_freshdesk_sync_log_view_search" model="ir.ui.view">
+        <field name="name">sh.freshdesk.sync.log.view.search</field>
+        <field name="model">sh.freshdesk.sync.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="ticket_id"/>
+                <field name="res_model"/>
+                <field name="status"/>
+                
+                <filter string="Today Sync" name="today" domain="[('sync_date', '&gt;=', 'today'), ('sync_date', '&lt;', 'today +1d')]"/>
+                <filter string="Yesterday Sync" name="yesterday" domain="[('sync_date', '&gt;=', 'today -1d'), ('sync_date', '&lt;', 'today')]"/>
+                <filter string="Success" name="success" domain="[('status', '=', 'success')]"/>
+                <filter string="Error" name="error" domain="[('status', '=', 'error')]"/>
+                <separator/>
+                <filter string="Create" name="op_create" domain="[('operation', '=', 'create')]"/>
+                <filter string="Update" name="op_update" domain="[('operation', '=', 'update')]"/>
+                <filter string="Delete" name="op_delete" domain="[('operation', '=', 'delete')]"/>
+
+                <group>
+                    <filter string="Model" name="group_by_model" context="{'group_by': 'res_model'}"/>
+                    <filter string="Contact" name="group_by_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Ticket" name="group_by_ticket" context="{'group_by': 'ticket_id'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
+                    <filter string="Operation" name="group_by_operation" context="{'group_by': 'operation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sh_freshdesk_sync_log" model="ir.actions.act_window">
+        <field name="name">Logs</field>
+        <field name="res_model">sh.freshdesk.sync.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sh_freshdesk_sync_log_view_search"/>
+        <field name="context">{'search_default_today': 1}</field>
+    </record>
+
+    <menuitem id="menu_sh_freshdesk_sync_log"
+              name="Logs"
+              parent="sh_freshdesk_log_menu"
+              action="action_sh_freshdesk_sync_log"
+              sequence="20"/>
+
+</odoo>

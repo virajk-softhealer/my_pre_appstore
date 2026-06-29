@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_sh_freshdesk" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.sh.freshdesk</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="100"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Freshdesk" string="Freshdesk" name="sh_freshdesk_connector" groups="sh_freshdesk_connector.group_freshdesk_manager">
+                    <block title="Freshdesk Authentication" id="sh_freshdesk_auth_block">
+                        <setting string="Freshdesk Domain" id="sh_freshdesk_domain">
+                            <field name="sh_freshdesk_domain" placeholder="https://company.freshdesk.com"/>
+                        </setting>
+                        <setting string="API Key" id="sh_freshdesk_api_key">
+                            <field name="sh_freshdesk_api_key" password="True"/>
+                        </setting>
+
+                        <setting string="Last Contact Sync" id="sh_last_contact_sync">
+                            <field name="sh_freshdesk_last_contact_sync_date" readonly="1"/>
+                        </setting>
+                        <setting string="Last Ticket Sync" id="sh_last_ticket_sync">
+                            <field name="sh_freshdesk_last_ticket_sync_date" readonly="1"/>
+                        </setting>
+
+                        <setting id="sh_build_connection">
+                            <button name="action_build_connection" type="object" string="Build Connection" class="btn btn-primary"/>
+                        </setting>
+                    </block>
+
+                    <block title="Sync From Freshdesk To Odoo" id="sh_freshdesk_sync_block">
+                        <setting string="Sync Contacts" id="sh_enable_partner_sync" help="Enable this option if you want to Sync Contacts to Odoo.">
+                            <field name="sh_enable_partner_sync" widget="boolean_toggle"/>
+                            
+                        </setting>
+
+                        <setting string="Sync Tickets" id="sh_enable_ticket_sync" help="Enable this option if you want to Sync Tickets to Odoo.">
+                            <field name="sh_enable_ticket_sync" widget="boolean_toggle"/>
+                            
+                        </setting>
+
+                        <setting string="Manual Action" id="sh_manual_action" help="Enable this option and select date range for data Syncing.">
+                            <field name="sh_manual_action" widget="boolean_toggle"/>
+                            <div class="content-group mt-3" invisible="not sh_manual_action">
+                                <div class="row mb-3">
+                                    <label for="sh_sync_start_date" string="From Date" class="col-4 col-lg-3 o_light_label"/>
+                                    <div class="col-8 col-lg-9">
+                                        <field name="sh_sync_start_date" class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="sh_sync_end_date" string="To Date" class="col-4 col-lg-3 o_light_label"/>
+                                    <div class="col-8 col-lg-9">
+                                        <field name="sh_sync_end_date" class="w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 border-top w-100 pt-3" invisible="not sh_manual_action">
+                                <button name="action_sync_now" type="object" string="Sync Now" class="btn btn-primary" icon="fa-refresh"/>
+                            </div>
+                        </setting>
+
+                        <setting string="Automated Action" id="sh_automated_action" help="Enable this option if you want auto Syncing.">
+                            <field name="sh_automated_action" widget="boolean_toggle"/>
+                            <div class="content-group mt-3" invisible="not sh_automated_action">
+                                <div class="row mb-3">
+                                    <label for="sh_cron_interval_number" string="Interval Number" class="col-5 col-lg-4 o_light_label"/>
+                                    <div class="col-7 col-lg-8">
+                                        <field name="sh_cron_interval_number" class="w-100" min="1"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="sh_cron_interval_type" string="Interval Type" class="col-5 col-lg-4 o_light_label"/>
+                                    <div class="col-7 col-lg-8">
+                                        <field name="sh_cron_interval_type" class="w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-2" invisible="not sh_automated_action">
+                                <button name="action_save_auto_setting" type="object" string="Save Auto Setting" class="btn btn-primary"/>
+                            </div>
+                        </setting>
+
+                        <setting string="Sync Limits" id="sh_freshdesk_sync_limits" help="Set number of records to sync. Set 0 for no limit.">
+                            <div class="content-group">
+                                <div class="row mt-2">
+                                    <label for="sh_fd_contact_sync_limit" class="col-lg-3 o_light_label"/>
+                                    <field name="sh_fd_contact_sync_limit" min="0"/>
+                                </div>
+                                <div class="row mt-2">
+                                    <label for="sh_fd_company_sync_limit" class="col-lg-3 o_light_label"/>
+                                    <field name="sh_fd_company_sync_limit" min="0"/>
+                                </div>
+                                <div class="row mt-2">
+                                    <label for="sh_fd_ticket_sync_limit" class="col-lg-3 o_light_label"/>
+                                    <field name="sh_fd_ticket_sync_limit" min="0"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="Sync From Odoo To Freshdesk" id="sh_freshdesk_action_block">
+                        <setting string="Contact Sync">
+                            <div class="content-group">
+                                <div class="mt-2 d-flex gap-3">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_partner_create"/><label for="sh_fd_partner_create" string="Create"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_partner_update"/><label for="sh_fd_partner_update" string="Update"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_partner_delete"/><label for="sh_fd_partner_delete" string="Delete"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Ticket Sync">
+                            <div class="content-group">
+                                <div class="mt-2 d-flex gap-3">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_ticket_create"/><label for="sh_fd_ticket_create" string="Create"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_ticket_update"/><label for="sh_fd_ticket_update" string="Update"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_ticket_delete"/><label for="sh_fd_ticket_delete" string="Delete"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="Queue Management" id="sh_freshdesk_queue_block">
+                        <setting string="Enable Queue Logs" id="sh_enable_sync_queue"
+                                 help="When enabled, sync operations are placed in a queue and processed by a scheduled cron job instead of syncing directly.">
+                            <field name="sh_enable_sync_queue" widget="boolean_toggle"/>
+                        </setting>
+                    </block>
+                    
+                    <block title="Freshdesk Webhook" id="sh_freshdesk_webhook_block">
+                        <setting string="Enable Webhook" id="sh_enable_freshdesk_webhook" help="Receive real-time Freshdesk ticket updates in Odoo.">
+                            <field name="sh_enable_freshdesk_webhook" widget="boolean_toggle"/>
+                        </setting>
+                        <setting string="Default Helpdesk Team" id="sh_freshdesk_webhook_team" invisible="not sh_enable_freshdesk_webhook">
+                            <field name="sh_freshdesk_webhook_team_id" options="{'no_create_edit': False}"/>
+                        </setting>
+                        <setting string="Webhook URL" id="sh_freshdesk_webhook_url" invisible="not sh_enable_freshdesk_webhook">
+                            <div class="content-group">
+                                <field name="sh_freshdesk_webhook_url" readonly="1" class="w-100" widget="CopyClipboardChar"/>
+                                <div class="mt-2">
+                                    <button name="action_generate_freshdesk_webhook_secret" type="object" string="Regenerate Webhook URL" class="btn btn-secondary"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Ticket Events" invisible="not sh_enable_freshdesk_webhook">
+                            <div class="content-group">
+                                <div class="mt-2 d-flex gap-3">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_webhook_ticket_create"/><label for="sh_fd_webhook_ticket_create" string="Create"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <field name="sh_fd_webhook_ticket_update"/><label for="sh_fd_webhook_ticket_update" string="Update"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+sh_ac_campaign_user,sh.active.campaign.campaign user,model_sh_active_campaign_campaign,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_campaign_manager,sh.active.campaign.campaign manager,model_sh_active_campaign_campaign,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1
+sh_ac_form_user,sh.active.campaign.form user,model_sh_active_campaign_form,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_form_manager,sh.active.campaign.form manager,model_sh_active_campaign_form,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1
+sh_ac_dashboard_user,sh.active.campaign.dashboard user,model_sh_active_campaign_dashboard,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_dashboard_manager,sh.active.campaign.dashboard manager,model_sh_active_campaign_dashboard,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1
+sh_ac_log_user,sh.active.campaign.log user,model_sh_active_campaign_log,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_log_manager,sh.active.campaign.log manager,model_sh_active_campaign_log,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1
+sh_ac_queue_user,sh.active.campaign.sync.queue user,model_sh_active_campaign_sync_queue,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_queue_manager,sh.active.campaign.sync.queue manager,model_sh_active_campaign_sync_queue,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1
+sh_ac_message_wizard_user,sh.ac.message.wizard user,model_sh_ac_message_wizard,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_message_wizard_manager,sh.ac.message.wizard manager,model_sh_ac_message_wizard,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1
+sh_ac_user_guide_user,sh.active.campaign.user.guide user,model_sh_active_campaign_user_guide,sh_active_campaign.group_sh_active_campaign_user,1,0,0,0
+sh_ac_user_guide_manager,sh.active.campaign.user.guide manager,model_sh_active_campaign_user_guide,sh_active_campaign.group_sh_active_campaign_manager,1,1,1,1

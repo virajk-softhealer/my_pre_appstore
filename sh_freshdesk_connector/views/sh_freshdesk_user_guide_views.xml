@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_freshdesk_user_guide_record" model="sh.freshdesk.user.guide">
+        <field name="name">User Guide</field>
+        <field name="guide_html"><![CDATA[
+<div class="o_freshdesk_user_guide">
+    <h1>Freshdesk Configuration Guide</h1>
+    <p>Use this page as a quick setup reference for the Freshdesk connector in Odoo.</p>
+
+    <h2>1. Freshdesk Authentication</h2>
+    <ol>
+        <li>Open the <b>Freshdesk</b> tab in Settings.</li>
+        <li>Enter your Freshdesk domain.</li>
+        <li>Add the API key.</li>
+        <li>Click <b>Build Connection</b> to verify the setup.</li>
+    </ol>
+    <p><b>Purpose:</b> Connect Odoo with your Freshdesk account.</p>
+
+    <h2>2. Sync From Freshdesk to Odoo</h2>
+    <ol>
+        <li>Enable <b>Sync Contacts</b> if you want Freshdesk contacts in Odoo.</li>
+        <li>Enable <b>Sync Tickets</b> if you want Freshdesk tickets in Odoo.</li>
+        <li>Choose <b>Manual Action</b> for date-based sync.</li>
+        <li>Choose <b>Automated Action</b> for scheduled sync.</li>
+        <li>Set the <b>Sync Limits</b> for Contact, Company, and Ticket.</li>
+        <li>Click <b>Sync Now</b> when using manual sync.</li>
+    </ol>
+    <p><b>Purpose:</b> Import records from Freshdesk into Odoo in a controlled way.</p>
+
+    <h2>3. Sync From Odoo to Freshdesk</h2>
+    <ol>
+        <li>Choose the actions you want to send from Odoo to Freshdesk.</li>
+        <li>Enable <b>Create</b>, <b>Update</b>, or <b>Delete</b> for Contacts.</li>
+        <li>Enable <b>Create</b>, <b>Update</b>, or <b>Delete</b> for Tickets.</li>
+        <li>Save the settings before syncing records.</li>
+    </ol>
+    <p><b>Purpose:</b> Push Odoo record changes back to Freshdesk.</p>
+
+    <h2>4. Queue Management</h2>
+    <ol>
+        <li>Enable <b>Queue Logs</b> for background processing.</li>
+        <li>Use it when you want sync jobs to run through cron.</li>
+        <li>Open the queue records to check pending, done, or failed items.</li>
+        <li>Retry failed records from the queue form if needed.</li>
+    </ol>
+    <p><b>Purpose:</b> Process sync records safely without blocking the main flow.</p>
+
+    <h2>5. Freshdesk Webhook</h2>
+    <ol>
+        <li>Enable <b>Webhook</b> if you want real-time ticket updates.</li>
+        <li>Select the default helpdesk team for incoming tickets.</li>
+        <li>Copy the webhook URL shown in Settings.</li>
+        <li>Paste the URL in Freshdesk and enable the ticket events you need.</li>
+        <li>Use <b>Regenerate Webhook URL</b> if the secret changes.</li>
+    </ol>
+    <p><b>Purpose:</b> Receive Freshdesk ticket create and update events instantly in Odoo.</p>
+
+    <h2>6. Logs and Review</h2>
+    <ol>
+        <li>Open <b>Freshdesk &gt; Logs</b> to review sync results.</li>
+        <li>Use filters to view today’s records, errors, creates, updates, or deletes.</li>
+        <li>Open any log record to inspect the synced details.</li>
+    </ol>
+    <p><b>Purpose:</b> Track what was synced and quickly identify issues.</p>
+</div>
+        ]]></field>
+    </record>
+
+    <record id="sh_freshdesk_user_guide_view_form" model="ir.ui.view">
+        <field name="name">sh.freshdesk.user.guide.view.form</field>
+        <field name="model">sh.freshdesk.user.guide</field>
+        <field name="arch" type="xml">
+            <form string="User Guide" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <field name="guide_html" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sh_freshdesk_user_guide" model="ir.actions.act_window">
+        <field name="name">User Guide</field>
+        <field name="res_model">sh.freshdesk.user.guide</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="sh_freshdesk_user_guide_record"/>
+        <field name="views" eval="[(ref('sh_freshdesk_user_guide_view_form'), 'form')]"/>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="sh_freshdesk_user_guide_menu"
+              name="User Guide"
+              action="action_sh_freshdesk_user_guide"
+              groups="sh_freshdesk_connector.group_freshdesk_manager"
+              parent="sh_freshdesk_dashboard_menu"
+              sequence="30"/>
+</odoo>

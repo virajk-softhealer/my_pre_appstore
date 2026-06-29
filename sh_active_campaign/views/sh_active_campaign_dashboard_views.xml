@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_dashboard_form_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.dashboard.form</field>
+        <field name="model">sh.active.campaign.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Active Campaign" create="false" delete="false">
+                <sheet>
+                    <!-- Custom CSS for pixel-perfect dashboard styling -->
+                    <style>
+                        .sh_ac_dashboard_title {
+                            font-size: 1.5rem;
+                            color: #333333;
+                            margin-bottom: 2rem;
+                            font-weight: 500;
+                        }
+                        .sh_ac_header_row {
+                            border-bottom: 2px solid #000000;
+                            padding-bottom: 1rem;
+                            margin-bottom: 1.5rem;
+                        }
+                        .sh_ac_header_title {
+                            font-size: 2.5rem;
+                            font-weight: 800;
+                            color: #111111;
+                        }
+                        .sh_ac_header_subtitle_bold {
+                            font-size: 1.25rem;
+                            font-weight: 800;
+                            color: #111111;
+                            display: block;
+                        }
+                        .sh_ac_header_subtitle_muted {
+                            font-size: 0.95rem;
+                            color: #555555;
+                            line-height: 1.3;
+                            display: block;
+                            margin-top: 0.25rem;
+                        }
+                        .sh_ac_data_row {
+                            border-bottom: 1px dashed #dddddd;
+                            padding-top: 1.2rem;
+                            padding-bottom: 1.2rem;
+                            display: flex;
+                            align-items: center;
+                        }
+                        .sh_ac_data_row_last {
+                            border-bottom: 1px solid #000000;
+                            padding-top: 1.2rem;
+                            padding-bottom: 1.5rem;
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 3rem;
+                        }
+                        .sh_ac_entity_name {
+                            font-size: 1.1rem;
+                            font-weight: 700;
+                            color: #222222;
+                        }
+                        .sh_ac_details_title {
+                            font-size: 1.8rem;
+                            font-weight: 800;
+                            color: #111111;
+                            margin-bottom: 1rem;
+                        }
+                        .sh_ac_alert_box {
+                            background-color: #E3F2FD !important;
+                            border-left: 0px !important;
+                            border-radius: 4px;
+                            padding: 1.25rem !important;
+                            margin-bottom: 2rem !important;
+                        }
+                        .sh_ac_alert_text {
+                            color: #2C3E50;
+                            font-size: 0.95rem;
+                            line-height: 1.5;
+                        }
+                        .sh_ac_btn_sync {
+                            background-color: #714B67 !important;
+                            border-color: #714B67 !important;
+                            color: #ffffff !important;
+                            font-weight: bold;
+                            padding: 0.5rem 1.5rem !important;
+                            border-radius: 4px !important;
+                        }
+                        .sh_ac_btn_save {
+                            background-color: #714B67 !important;
+                            border-color: #714B67 !important;
+                            color: #ffffff !important;
+                            font-weight: bold;
+                            padding: 0.5rem 1.5rem !important;
+                            border-radius: 4px !important;
+                        }
+                        .o_field_boolean input {
+                            width: 1.3rem !important;
+                            height: 1.3rem !important;
+                            cursor: pointer;
+                        }
+                    </style>
+
+                    <div class="sh_ac_dashboard_title">Active Campaign</div>
+
+                    <!-- Grid Header -->
+                    <div class="row sh_ac_header_row align-items-start">
+                        <div class="col-4">
+                            <span class="sh_ac_header_title">Entity</span>
+                        </div>
+                        <div class="col-4">
+                            <span class="sh_ac_header_subtitle_bold">Sync</span>
+                            <span class="sh_ac_header_subtitle_muted">From<br/>ActiveCampaign<br/>to<br/>Odoo</span>
+                        </div>
+                        <div class="col-4">
+                            <span class="sh_ac_header_subtitle_bold">Sync</span>
+                            <span class="sh_ac_header_subtitle_muted">From<br/>Odoo<br/>to<br/>ActiveCampaign</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 1: Contacts -->
+                    <div class="row sh_ac_data_row">
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">Contacts</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_contacts_import" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_contacts_export" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: List Contacts -->
+                    <div class="row sh_ac_data_row">
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">List<br/>Contacts</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_list_contacts_import" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                            <!-- N/A / Empty -->
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Lists/Campaigns -->
+                    <div class="row sh_ac_data_row">
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">Lists/Campaigns</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_lists_import" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                            <!-- N/A / Empty -->
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Tags -->
+                    <div class="row sh_ac_data_row">
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">Tags</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_tags_import" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_tags_export" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Deals -->
+                    <div class="row sh_ac_data_row">
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">Deals</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_deals_import" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_deals_export" nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Forms -->
+                    <div class="row sh_ac_data_row_last">
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">Forms</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_sync_forms_import" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                        </div>
+                    </div>
+
+                    <!-- Queue Management Section -->
+                    <div class="row sh_ac_data_row_last">
+                        <div class="sh_ac_details_title">
+                            Queue Management
+                        </div>
+                        <div class="col-4">
+                            <span class="sh_ac_entity_name">Enable Queue Processing</span>
+                        </div>
+                        <div class="col-4">
+                            <field name="sh_ac_enable_queue_processing" nolabel="1"/>
+                        </div>
+                        <div class="col-4">
+                        </div>
+                    </div>
+
+                    <!-- Sync Details Section -->
+                    <div class="mt-5 pt-4">
+                        <div class="sh_ac_details_title">Sync Details</div>
+
+                        <!-- Alert/Tip Banner -->
+                        <div class="alert alert-info sh_ac_alert_box" role="alert">
+                            <div class="sh_ac_alert_text">
+                                <strong>* Processes can be run instantly or via scheduled actions.</strong><br/>
+                                --&gt; To run instantly, put custom date range and click execution button.<br/>
+                                --&gt; To run on the basis of scheduled action put interval, unit and click save button to reserve current selected entities for scheduler.
+                            </div>
+                        </div>
+
+                        <!-- Row 1 of Sync Details: Date Range, From, To, Sync Button -->
+                        <div class="row align-items-center mb-4">
+                            <div class="col-auto d-flex align-items-center gap-2">
+                                <span class="fw-bold text-dark" style="font-size: 1rem;">Date Range</span>
+                                <field name="sh_date_range" nolabel="1"/>
+                            </div>
+                            <div class="col-auto d-flex align-items-center gap-2" invisible="not sh_date_range">
+                                <span class="fw-bold text-dark" style="font-size: 1rem;">From</span>
+                                <field name="sh_date_from" nolabel="1" required="sh_date_range"/>
+                            </div>
+                            <div class="col-auto d-flex align-items-center gap-2" invisible="not sh_date_range">
+                                <span class="fw-bold text-dark" style="font-size: 1rem;">To</span>
+                                <field name="sh_date_to" nolabel="1" required="sh_date_range"/>
+                            </div>
+                            <div class="col-auto ms-auto">
+                                <button name="action_run_sync" type="object"
+                                        string="Sync" class="btn sh_ac_btn_sync"
+                                        icon="fa-refresh"/>
+                            </div>
+                        </div>
+
+                        <!-- Row 2 of Sync Details: Auto Scheduler, Save Configuration Button -->
+                        <div class="row align-items-center">
+                            <div class="col-auto d-flex align-items-center gap-2">
+                                <span class="fw-bold text-dark" style="font-size: 1rem;">Auto Scheduler</span>
+                                <field name="sh_auto_scheduler" nolabel="1"/>
+                            </div>
+                            <div class="col-auto ms-auto">
+                                <button name="action_save_configuration" type="object"
+                                        string="Save Configuration(s)" class="btn sh_ac_btn_save"
+                                        icon="fa-save"/>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

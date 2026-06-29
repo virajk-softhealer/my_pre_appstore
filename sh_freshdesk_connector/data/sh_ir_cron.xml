@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_sh_fd_partner_sync" model="ir.cron">
+            <field name="name">Freshdesk: Pull Contacts</field>
+            <field name="model_id" ref="model_res_partner"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_partners_from_freshdesk(is_manual=False); model.sync_companies_from_freshdesk(is_manual=False)</field>
+            <field name="interval_number">60</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <record id="ir_cron_sh_fd_ticket_sync" model="ir.cron">
+            <field name="name">Freshdesk: Pull Tickets</field>
+            <field name="model_id" ref="model_helpdesk_ticket"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_tickets_from_freshdesk(is_manual=False)</field>
+            <field name="interval_number">60</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="False"/>
+        </record>
+        <record id="ir_cron_sh_fd_clean_logs" model="ir.cron">
+            <field name="name">Freshdesk: Clean Contact/Ticket Logs</field>
+            <field name="model_id" ref="model_sh_freshdesk_sync_log"/>
+            <field name="state">code</field>
+            <field name="code">model.action_clean_old_logs()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

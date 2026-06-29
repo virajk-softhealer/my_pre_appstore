@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_user_guide_form_view" model="ir.ui.view">
+        <field name="name">sh.active.campaign.user.guide.form</field>
+        <field name="model">sh.active.campaign.user.guide</field>
+        <field name="arch" type="xml">
+            <form string="User Guide">
+                <sheet>
+                    <group>
+                        <field name="sh_content" widget="html" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_ac_user_guide_action" model="ir.actions.act_window">
+        <field name="name">User Guide</field>
+        <field name="res_model">sh.active.campaign.user.guide</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="sh_ac_user_guide_form_view"/>
+        <field name="res_id" eval="ref('sh_active_campaign.sh_ac_default_user_guide')"/>
+        <field name="target">current</field>
+    </record>
+</odoo>

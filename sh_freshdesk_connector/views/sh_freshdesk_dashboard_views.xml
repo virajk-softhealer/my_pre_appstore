@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Combined Action for the Sidebar and Dashboard -->
+    <record id="action_sh_freshdesk_config_settings" model="ir.actions.act_window">
+        <field name="name">Configuration</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'sh_freshdesk_connector'}</field>
+    </record>
+
+    <menuitem id="sh_freshdesk_root_menu"
+        name="Freshdesk"
+        web_icon="sh_freshdesk_connector,static/description/icon.png"
+        sequence="100"
+        groups="sh_freshdesk_connector.group_freshdesk_user"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="sh_freshdesk_dashboard_menu"
+        name="Configuration"
+        parent="sh_freshdesk_root_menu"
+        groups="sh_freshdesk_connector.group_freshdesk_manager"
+        sequence="20">
+        
+        <menuitem id="sh_freshdesk_config_menu"
+            name="Settings"
+            action="action_sh_freshdesk_config_settings"
+            sequence="10"/>
+              
+    </menuitem>
+
+    <!-- Logs Menu -->
+    <menuitem id="sh_freshdesk_log_menu"
+        name="Logs"
+        parent="sh_freshdesk_root_menu"
+        groups="sh_freshdesk_connector.group_freshdesk_user"
+        sequence="10"/>
+
+</odoo>

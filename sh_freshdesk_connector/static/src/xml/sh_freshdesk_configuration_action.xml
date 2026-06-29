@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sh_freshdesk_connector.ShFreshdeskConfigurationAction">
+        <div class="o_form_view o_xxl_form_view p-3">
+            <h2>Freshdesk Configuration</h2>
+            <div class="row g-3 mt-2">
+                <div class="col-6">
+                    <label><input type="checkbox" t-model="state.sync_contacts"/> Sync Contacts</label>
+                </div>
+                <div class="col-6">
+                    <label><input type="checkbox" t-model="state.sync_tickets"/> Sync Tickets</label>
+                </div>
+                <!-- <div class="col-6">
+                    <label><input type="checkbox" t-model="state.import_conversations"/> Import Conversations</label>
+                </div>
+                <div class="col-6">
+                    <label><input type="checkbox" t-model="state.import_time_entries"/> Import Time Entries</label>
+                </div> -->
+            </div>
+
+            <div class="alert alert-info mt-3">
+                Manual Sync: choose date range and click Sync. Automated Sync: save auto settings and cron will run.
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-6 border rounded p-3">
+                    <label><input type="checkbox" t-att-checked="state.manual_action" t-on-change="() => this.onToggleMode('manual')"/> Manual Action</label>
+                    <div class="mt-2" t-if="state.manual_action">
+                        <label>From Date</label>
+                        <input class="form-control" type="datetime-local" t-model="state.from_date"/>
+                        <label class="mt-2">To Date</label>
+                        <input class="form-control" type="datetime-local" t-model="state.to_date"/>
+                        <button class="btn btn-primary mt-3" t-on-click="onSyncNow">Sync</button>
+                    </div>
+                </div>
+                <div class="col-6 border rounded p-3">
+                    <label><input type="checkbox" t-att-checked="state.automated_action" t-on-change="() => this.onToggleMode('auto')"/> Automated Action</label>
+                    <div class="mt-3" t-if="state.automated_action">
+                        <button class="btn btn-secondary" t-on-click="onSaveAuto">Save Auto Setting</button>
+                    </div>
+                </div>
+                <div class="col-6 border rounded p-3">
+                    <label><input type="checkbox" t-model="state.auto_sync"/> Auto Sync (Real-time)</label>
+                    <div class="mt-2 text-muted small">
+                         Sync records instantly when Created, Updated, or Deleted.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

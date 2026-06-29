@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Import cron: runs daily, imports all enabled entities -->
+        <record id="sh_ac_cron_import" model="ir.cron">
+            <field name="name">ActiveCampaign: Auto Import (AC → Odoo)</field>
+            <field name="model_id" ref="model_sh_active_campaign_dashboard"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_run_import()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">False</field>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+
+        <!-- Export cron: runs daily, exports enabled entities to AC -->
+        <record id="sh_ac_cron_export" model="ir.cron">
+            <field name="name">ActiveCampaign: Auto Export (Odoo → AC)</field>
+            <field name="model_id" ref="model_sh_active_campaign_dashboard"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_run_export()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">False</field>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+
+        <!-- Log Cleanup cron: runs daily, deletes logs older than 30 days -->
+        <record id="sh_ac_cron_cleanup_logs" model="ir.cron">
+            <field name="name">ActiveCampaign: Clean Up Logs (Older than 30 days)</field>
+            <field name="model_id" ref="model_sh_active_campaign_log"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_cleanup_logs()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+    </data>
+</odoo>

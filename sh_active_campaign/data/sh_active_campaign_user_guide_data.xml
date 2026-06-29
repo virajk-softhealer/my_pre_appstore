@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_ac_default_user_guide" model="sh.active.campaign.user.guide">
+        <field name="name">Active Campaign User Guide</field>
+        <field name="sh_content" type="html">
+            <div>
+                <h2>Active Campaign Connector - User Guide</h2>
+                <p>This guide helps users operate the <b>sh_active_campaign</b> module in Odoo 19.</p>
+
+                <div style="background-color:#dbe8f4;border-left:4px solid #7c5a7a;padding:12px 14px;border-radius:4px;margin:10px 0 18px 0;">
+                    <p style="margin:0 0 6px 0;"><b>Quick Note:</b> Complete API setup first, then run sync from Dashboard.</p>
+                    <p style="margin:0;">Use <b>Sync Queue</b> for background jobs, <b>Webhook</b> for real-time sync, and <b>Sync Logs</b> to track success/failure details after each run.</p>
+                </div>
+
+                <h3>How to Find API URL and API Key in ActiveCampaign</h3>
+                <ul>
+                    <li>Login to your ActiveCampaign account.</li>
+                    <li>Go to <b>Settings &gt; Developer &gt; API Access</b>.</li>
+                    <li>Copy the <b>API URL</b> and <b>API Key</b>.</li>
+                    <li>Paste both values in Odoo: <b>Active Campaign / Configuration / Settings</b>.</li>
+                    <li>Save settings, then run sync from the Dashboard.</li>
+                </ul>
+
+                <h3>1. Initial Setup</h3>
+                <ul>
+                    <li>Go to <b>Active Campaign / Configuration / Settings</b>.</li>
+                    <li>Enter ActiveCampaign API URL and API Key company-wise.</li>
+                    <li>Enable required sync options from Dashboard.</li>
+                    <li>If webhook sync is required, enable <b>Webhook Processing</b> and copy the generated webhook URL and access token.</li>
+                </ul>
+
+                <h3>2. Dashboard Sync</h3>
+                <ul>
+                    <li>Open <b>Active Campaign / Dashboard</b>.</li>
+                    <li>Use the dashboard sync buttons to run import or export jobs manually.</li>
+                    <li>Check the dashboard counters and status cards after every run.</li>
+                </ul>
+
+                <h3>3. Contact Synchronization</h3>
+                <ul>
+                    <li><b>Import Contacts</b>: Pull contacts from ActiveCampaign into Odoo Contacts.</li>
+                    <li><b>Export Contacts</b>: Push Odoo contacts to ActiveCampaign.</li>
+                    <li>Synced contacts are identified by <b>Active Campaign Contact ID</b> and kanban label.</li>
+                </ul>
+
+                <h3>4. Tag Synchronization</h3>
+                <ul>
+                    <li>Import tags from ActiveCampaign into Odoo contact tags.</li>
+                    <li>Export Odoo tags back to ActiveCampaign when tag sync is enabled.</li>
+                    <li>Tag records store the ActiveCampaign tag identifier for safe update and delete handling.</li>
+                </ul>
+
+                <h3>5. Queue Processing</h3>
+                <ul>
+                    <li>Open <b>Active Campaign / Configuration / Sync Queue</b>.</li>
+                    <li>Use the queue to monitor background jobs that are processed in batches.</li>
+                    <li>Retry failed queue items after fixing the root cause.</li>
+                </ul>
+
+                <h3>6. Webhook Processing</h3>
+                <ul>
+                    <li>Use the webhook URL generated in Odoo inside ActiveCampaign webhook settings.</li>
+                    <li>Enable webhook processing from <b>Configuration / Settings</b> to receive real-time updates.</li>
+                    <li>Webhook events are used for contact, tag,mail list and deal updates that should sync immediately.</li>
+                </ul>
+
+                <h3>7. Other Synchronization Options</h3>
+                <ul>
+                    <li>Lists: Import mailing lists from ActiveCampaign.</li>
+                    <li>Tags: Import/Export contact tags.</li>
+                    <li>Deals: Import/Export opportunity pipeline data.</li>
+                    <li>Forms and Campaigns: Import metadata to keep Odoo aligned.</li>
+                </ul>
+
+                <h3>8. Logs and Troubleshooting</h3>
+                <ul>
+                    <li>Open <b>Active Campaign / Configuration / Sync Logs</b> for sync results.</li>
+                    <li>Review failed records and retry sync after correction.</li>
+                    <li>Ensure email values are valid and unique where possible.</li>
+                </ul>
+
+                <div style="background-color:#fff3cd;border-left:4px solid #d39e00;padding:12px 14px;border-radius:4px;margin:10px 0 18px 0;">
+                    <p style="margin:0;"><b>Important:</b> Keep API Key secure and update it in Odoo immediately if rotated in ActiveCampaign.</p>
+                </div>
+
+                <h3>9. Access Rights</h3>
+                <ul>
+                    <li><b>User</b>: Read-only access to module records.</li>
+                    <li><b>Manager</b>: Full create, edit, and delete rights.</li>
+                </ul>
+            </div>
+        </field>
+    </record>
+</odoo>

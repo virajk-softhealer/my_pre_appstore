@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_freshdesk_sync_queue_view_list" model="ir.ui.view">
+        <field name="name">sh.freshdesk.sync.queue.view.list</field>
+        <field name="model">sh.freshdesk.sync.queue</field>
+        <field name="arch" type="xml">
+            <list string="Queue Logs" create="false" edit="false"
+                  decoration-info="state == 'draft'"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'failed'">
+                <header>
+                    <button name="action_retry" string="Retry Sync" 
+                        type="object" class="btn-primary" groups="sh_freshdesk_connector.group_freshdesk_manager"/>
+                </header>
+                <field name="create_date"/>
+                <field name="res_model_id"/>
+                <field name="partner_id"/>
+                <field name="ticket_id"/>
+                <field name="direction"/>
+                <field name="operation" widget="badge"
+                       decoration-info="operation == 'create'"
+                       decoration-warning="operation == 'update'"
+                       decoration-danger="operation == 'delete'"/>
+                <field name="last_attempt_date"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sh_freshdesk_sync_queue_view_form" model="ir.ui.view">
+        <field name="name">sh.freshdesk.sync.queue.view.form</field>
+        <field name="model">sh.freshdesk.sync.queue</field>
+        <field name="arch" type="xml">
+            <form string="Queue Logs Record" create="false" edit="false">
+                <header>
+                    <button name="action_retry" string="Retry Sync" type="object" 
+                        class="oe_highlight" invisible="state == 'done'"
+                        groups="sh_freshdesk_connector.group_freshdesk_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="res_model_id" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="res_id"/>
+                            <field name="partner_id" invisible="not partner_id" options="{'no_create': True}"/>
+                            <field name="ticket_id" invisible="not ticket_id" options="{'no_create': True}"/>
+                            <field name="direction"/>
+                        </group>
+                        <group>
+                            <field name="operation" widget="badge"
+                                   decoration-info="operation == 'create'"
+                                   decoration-warning="operation == 'update'"
+                                   decoration-danger="operation == 'delete'"/>
+                            <field name="last_attempt_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Last Error Message" invisible="not error_message">
+                            <field name="error_message" readonly="1" nolabel="1"/>
+                        </page>
+                        <page string="Webhook Payload" invisible="not payload">
+                            <field name="payload" readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_freshdesk_sync_queue_view_search" model="ir.ui.view">
+        <field name="name">sh.freshdesk.sync.queue.view.search</field>
+        <field name="model">sh.freshdesk.sync.queue</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="ticket_id"/>
+                <field name="res_model_id"/>
+                <field name="state"/>
+                <filter string="Pending" name="pending" domain="[('state', '=', 'draft')]"/>
+                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Odoo to Freshdesk" name="odoo_to_freshdesk" domain="[('direction', '=', 'odoo_to_freshdesk')]"/>
+                <filter string="Freshdesk to Odoo" name="freshdesk_to_odoo" domain="[('direction', '=', 'freshdesk_to_odoo')]"/>
+                <group>
+                    <filter string="Model" name="group_by_model" context="{'group_by': 'res_model_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Direction" name="group_by_direction" context="{'group_by': 'direction'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sh_freshdesk_sync_queue" model="ir.actions.act_window">
+        <field name="name">Queue Logs</field>
+        <field name="res_model">sh.freshdesk.sync.queue</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sh_freshdesk_sync_queue_view_search"/>
+        <field name="context">{'search_default_pending': 1, 'search_default_failed': 1}</field>
+    </record>
+
+    <menuitem id="menu_sh_freshdesk_sync_queue"
+              name="Queue Logs"
+              parent="sh_freshdesk_log_menu"
+              action="action_sh_freshdesk_sync_queue"
+              sequence="30"/>
+
+</odoo>

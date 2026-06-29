@@ -1,0 +1,24 @@
+1. configuration_final.mov
+Image Title: Freshdesk Connector Configuration
+Content: Learn how to configure API credentials, sync options, cron jobs, and webhook endpoints for seamless integration between Odoo and Freshdesk.
+
+
+
+2. odoo_to_freshdesk_queue_final.mov
+Image Title: Odoo to Freshdesk & Sync Queue
+Content: Watch how to synchronize Odoo contacts and helpdesk tickets to Freshdesk using the robust Sync Queue management system, tracking status and handling failures.
+
+
+
+3. freshdesk_to_odoo_final.mov
+Image Title: Freshdesk to Odoo Synchronization
+Content: See how contacts and tickets are synchronized from Freshdesk into Odoo, ensuring your Odoo database is always up to date.
+
+
+
+4. freshdesk_webhook_final.mov
+Image Title: Real-time Sync with Webhooks
+Content: Discover how to set up Freshdesk automations and webhooks for instant, real-time data synchronization of tickets and contacts into Odoo.
+
+
+SS for the tiles:- https://drive.google.com/drive/folders/1-EwxSwuqjqEjw2bE5JbMsi6k0XJcv3GG?usp=sharing

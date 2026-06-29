@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sh_ac_partner_form_view_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.sh.ac</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='internal_notes']" position="after">
+                <page name="active_campaign" string="Active Campaign Details" invisible="not sh_ac_contact_id">
+                    <group>
+                        <group>
+                            <field name="sh_ac_contact_id" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit.sh.ac</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="sh_ac_contact_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_res_partner_filter_inherit_sh_ac" model="ir.ui.view">
+        <field name="name">res.partner.select.inherit.sh.ac</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sh_ac_contact_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter string="ActiveCampaign Contacts" name="ac_contacts" domain="[('sh_ac_contact_id', '!=', False)]"/>
+                <separator/>
+                <filter string="Not ActiveCampaign Contacts" name="not_ac_contacts" domain="[('sh_ac_contact_id', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sh_ac_partner_kanban_view_inherit" model="ir.ui.view">
+        <field name="name">sh.active.campaign.partner.kanban.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+        
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="sh_ac_contact_id"/>
+            </xpath>
+            <xpath expr="//main/field[@name='properties']" position="after">
+                <div t-if="record.sh_ac_contact_id.raw_value"
+                     class="badge rounded-pill text-bg-primary ms-2"
+                     title="Active Campaign Contact">
+                    Active Campaign Contact
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

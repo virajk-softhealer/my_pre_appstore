@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- res.partner entity -->
+        <record id="sh_freshdesk_entity_partner" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="name">Contacts</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="domain">[['sh_freshdesk_id','!=',False]]</field>
+            <field name="icon">fa-users</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <!-- helpdesk.ticket entity -->
+        <record id="sh_freshdesk_entity_ticket" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="name">Tickets</field>
+            <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+            <field name="domain">[['sh_freshdesk_id','!=',False]]</field>
+            <field name="icon">fa-ticket</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <!-- Sync Logs entity -->
+        <record id="sh_freshdesk_entity_sync_logs" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="name">Sync Logs</field>
+            <field name="model_id" ref="sh_freshdesk_connector.model_sh_freshdesk_sync_log"/>
+            <field name="domain">[]</field>
+            <field name="icon">fa-history</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <!-- Queue Logs entity -->
+        <record id="sh_freshdesk_entity_sync_queue" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_freshdesk_connector.sh_freshdesk_connector_connector"/>
+            <field name="name">Queue Logs</field>
+            <field name="model_id" ref="sh_freshdesk_connector.model_sh_freshdesk_sync_queue"/>
+            <field name="domain">[]</field>
+            <field name="icon">fa-list-ol</field>
+            <field name="sequence">4</field>
+        </record>
+    </data>
+</odoo>
