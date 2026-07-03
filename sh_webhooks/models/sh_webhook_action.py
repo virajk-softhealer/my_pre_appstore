@@ -204,10 +204,6 @@ class ShWebhookAction(models.Model):
         """ Internal helper to handle the sending logic (immediate, post-commit, etc.) """
         if self.send_type == 'immediately':
             self._send_request(records)
-        # elif self.send_type == 'post_commit':
-        #     # Use post-commit logic (currently on hold)
-        #     record_ids = records.ids
-        #     self.env.cr.postcommit.add(lambda: self._send_request_with_new_env(record_ids))
         elif self.send_type == 'cron':
             # Create a pending log entry to be processed by the background Cron
             headers = self._prepare_headers(records)
@@ -271,16 +267,6 @@ class ShWebhookAction(models.Model):
 
         # Inbound pending logs are processed by the inbound model so UI retries work there too.
         self.env['sh.webhook.incoming']._process_inbound_webhook_queue()
-
-    # def _send_request_with_new_env(self, record_ids):
-    #     """ Send request with a fresh environment (for post-commit) """
-    #     db_name = self.env.cr.dbname
-    #     registry = odoo.modules.registry.Registry(db_name)
-    #     with registry.cursor() as new_cr:
-    #         new_env = odoo.api.Environment(new_cr, self.env.uid, self.env.context)
-    #         # We must browse the action in the NEW environment
-    #         self.with_env(new_env)._send_request(new_env[self.model_name].browse(record_ids))
-    #         new_cr.commit()
 
     def _send_request(self, records):
         """ Perform the actual HTTP request """
