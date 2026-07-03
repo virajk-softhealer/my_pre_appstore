@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_server_action_form_sh_webhook" model="ir.ui.view">
+        <field name="name">server.action.form.sh.webhook</field>
+        <field name="model">ir.actions.server</field>
+        <field name="inherit_id" ref="base.view_server_action_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="sh_is_webhook" column_invisible="True"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sh_webhook_action_server_action" model="ir.actions.act_window">
+        <field name="name">Server Actions</field>
+        <field name="res_model">ir.actions.server</field>
+        <field name="path">webhook-server-actions</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="base.view_server_action_tree"/>
+        <field name="search_view_id" ref="base.view_server_action_search"/>
+        <field name="domain" eval="[('sh_is_webhook', '=', True)]"/>
+        <!-- <field name="context">{
+            'key':'server_action',
+            'search_default_toplevel_actions': 1,
+        }</field> -->
+    </record>
+</odoo>
