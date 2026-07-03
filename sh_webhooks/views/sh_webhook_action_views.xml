@@ -38,10 +38,9 @@
                             <field name="field_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('model_id', '=', model_id)]"/>
                         </group>
                         <group>
-                            <field name="adapt_url" widget="boolean_toggle"/>
                             <field name="adapt_headers" widget="boolean_toggle"/>
                             <field name="apply_auth" widget="boolean_toggle"/>
-                            <field name="auth_id" invisible="not apply_auth" required="apply_auth"/>
+                            <field name="auth_id" invisible="not apply_auth" required="apply_auth" options="{'no_create':True,'no_open':True}"/>
                             <field name="adapt_payload" widget="boolean_toggle"/>
                             <field name="process_response" widget="boolean_toggle"/>
                             <field name="verify_ssl" widget="boolean_toggle"/>
@@ -61,9 +60,6 @@
                                 <button name="base.action_res_users_my" string="Add a Header" type="action" class="btn-link"/>
                             </div>
                         </page>
-                        <page string="Adapt URL" name="adapt_url" invisible="not adapt_url">
-                            <field name="code_url" widget="code" options="{'mode': 'python'}"/>
-                        </page>
                         <page string="Adapt Headers" name="adapt_headers" invisible="not adapt_headers">
                             <field name="code_headers" widget="code" options="{'mode': 'python'}"/>
                         </page>
@@ -73,7 +69,7 @@
                         <page string="Process Response" name="process_response" invisible="not process_response">
                             <field name="code_response" widget="code" options="{'mode': 'python'}"/>
                         </page>
-                        <page string="Handle Error" name="handle_error">
+                        <page string="Handle Error" name="handle_error" invisible="1">
                             <field name="code_error" widget="code" options="{'mode': 'python'}"/>
                         </page>
                         <page string="Guide" name="guide">
@@ -116,10 +112,6 @@
                                             <td>The specific Odoo fields to include in the JSON.</td>
                                         </tr>
                                         <tr>
-                                            <td><b>Adapt URL</b></td>
-                                            <td>Toggle to dynamically change the URL via Python.</td>
-                                        </tr>
-                                        <tr>
                                             <td><b>Adapt Headers</b></td>
                                             <td>Toggle to add custom HTTP headers via Python.</td>
                                         </tr>
@@ -129,7 +121,7 @@
                                         </tr>
                                         <tr>
                                             <td><b>Authentication</b></td>
-                                            <td>The profile used for security (Basic/Bearer/API Key).</td>
+                                            <td>The profile used for security (Basic only in the current flow).</td>
                                         </tr>
                                         <tr>
                                             <td><b>Adapt Payload</b></td>

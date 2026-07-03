@@ -6,6 +6,9 @@
         <field name="arch" type="xml">
             <form string="Webhook Log" create="false" edit="false">
                 <header>
+                     <button name="action_retry" string="Retry Sync" type="object" 
+                        invisible="state != 'error'"
+                        class="oe_highlight"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -14,7 +17,6 @@
                             <field name="direction" widget="radio" options="{'horizontal': true}"/>
                             <field name="webhook_id" invisible="direction != 'outbound'"/>
                             <field name="incoming_webhook_id" invisible="direction != 'inbound'"/>
-                            <field name="url"/>
                         </group>
                         <group>
                             <field name="create_date" string="Date"/>
@@ -23,7 +25,6 @@
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="res_model" invisible="1"/>
                             <field name="res_ids" invisible="1"/>
-                            <field name="retry_count" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -58,9 +59,7 @@
                 <field name="webhook_id" optional="show"/>
                 <field name="incoming_webhook_id" optional="hide"/>
                 <field name="method"/>
-                <field name="url"/>
                 <field name="status_code"/>
-                <field name="retry_count" string="Retries"/>
                 <field name="state" widget="badge" decoration-success="state == 'success'" decoration-danger="state == 'error'" decoration-info="state == 'pending'"/>
             </list>
         </field>
@@ -95,7 +94,6 @@
             <search string="Webhook Logs">
                 <field name="webhook_id"/>
                 <field name="incoming_webhook_id"/>
-                <field name="url"/>
                 <field name="res_model"/>
                 <field name="method"/>
                 

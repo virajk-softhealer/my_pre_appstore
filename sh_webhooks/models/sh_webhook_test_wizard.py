@@ -2,7 +2,7 @@
 # Copyright (C) Softhealer Technologies Pvt. Ltd.
 
 from odoo import models, fields, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 class ShWebhookTestWizard(models.TransientModel):
     _name = 'sh.webhook.test.wizard'
@@ -16,7 +16,12 @@ class ShWebhookTestWizard(models.TransientModel):
         records = self.env[self.webhook_id.model_name].browse(self.res_id)
         if not records.exists():
             raise ValidationError(_("Record with ID %s not found in model %s") % (self.res_id, self.webhook_id.model_name))
-        self.webhook_id.trigger_webhook(records)
+        try:
+            self.webhook_id.trigger_webhook(records)
+        except UserError:
+            raise
+        except Exception as e:
+            raise UserError(_("Webhook test failed:\n%s") % str(e))
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',

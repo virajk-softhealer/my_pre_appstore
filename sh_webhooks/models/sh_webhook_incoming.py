@@ -3,6 +3,7 @@
 
 from odoo import models, fields, api, _
 from odoo.tools.safe_eval import safe_eval, wrap_module
+from types import SimpleNamespace
 import uuid
 import json
 import logging
@@ -74,6 +75,66 @@ class ShWebhookIncoming(models.Model):
             self._log_request(request_obj, payload, headers, result, error=e, state='error')
             return {'status': 'error', 'message': str(e)}
 
+    def _build_request_proxy(self, log):
+        """Build a minimal request-like object for queued inbound retries."""
+        headers = json.loads(log.request_header or '{}')
+        payload = json.loads(log.request_body or '{}')
+        request_proxy = SimpleNamespace(
+            httprequest=SimpleNamespace(
+                method=log.method or 'POST',
+                headers=headers,
+                content_type='application/json',
+            ),
+            params=payload,
+        )
+        return request_proxy, payload, headers
+
+    def _process_inbound_webhook_queue(self):
+        """Process pending inbound webhook logs."""
+        logs_to_process = self.env['sh.webhook.log'].search([
+            ('direction', '=', 'inbound'),
+            ('incoming_webhook_id', '!=', False),
+            ('state', '=', 'pending'),
+        ], limit=100)
+
+        for log in logs_to_process:
+            webhook = log.incoming_webhook_id
+            try:
+                request_proxy, payload, headers = self._build_request_proxy(log)
+                result = {'status': 'success'}
+                eval_context = {
+                    'env': self.env,
+                    'model': self.env[webhook.model_name] if webhook.model_name else None,
+                    'request': request_proxy,
+                    'payload': payload,
+                    'headers': headers,
+                    'datetime': fields.Datetime,
+                    'date': fields.Date,
+                    'json': wrap_module(json, ['loads', 'dumps', 'JSONEncoder', 'JSONDecoder']),
+                    'log': _logger.info,
+                    'result': result,
+                }
+
+                with self.env.cr.savepoint():
+                    safe_eval(webhook.code, eval_context, mode='exec')
+
+                state = 'error' if result.get('status') == 'error' else 'success'
+                log.write({
+                    'response_body': json.dumps(result),
+                    'status_code': 200 if state == 'success' else 500,
+                    'state': state,
+                    'error_msg': False if state == 'success' else log.error_msg,
+                })
+            except Exception as e:
+                _logger.error("Queued Incoming Webhook Error: %s", str(e))
+                log.write({
+                    'response_body': json.dumps({'status': 'error', 'message': str(e)}),
+                    'status_code': 500,
+                    'state': 'error',
+                    'error_msg': str(e),
+                })
+            self.env.cr.commit()
+
     def _log_request(self, request_obj, payload, headers, result, error=None, state='success'):
         def json_safe(data):
             try:
@@ -84,7 +145,6 @@ class ShWebhookIncoming(models.Model):
         log_vals = {
             'direction': 'inbound',
             'incoming_webhook_id': self.id,
-            'url': self.url,
             'method': request_obj.httprequest.method,
             'request_header': json_safe(dict(headers)),
             'request_body': json_safe(payload),
