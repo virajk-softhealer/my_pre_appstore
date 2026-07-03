@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_webhook_action_view_form" model="ir.ui.view">
+        <field name="name">sh.webhook.action.view.form</field>
+        <field name="model">sh.webhook.action</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_preview" string="Preview" type="object" invisible="not active"/>
+                    <button name="create_contextual_action" string="Create Contextual Action" type="object" class="btn-primary" invisible="not active"/>
+                    <button name="remove_contextual_action" string="Remove Contextual Action" type="object" invisible="not active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Action Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Notify CRM on Contact Update"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="model_id" options="{'no_create': True}"/>
+                            <field name="model_name" invisible="1"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    
+                    <group string="WEBHOOK CONFIGURATION">
+                        <group>
+                            <field name="url" placeholder="https://api.example.com/webhooks/contacts"/>
+                            <field name="method"/>
+                            <field name="timeout"/>
+                            <field name="run_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="send_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="field_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('model_id', '=', model_id)]"/>
+                        </group>
+                        <group>
+                            <field name="adapt_headers" widget="boolean_toggle"/>
+                            <field name="apply_auth" widget="boolean_toggle"/>
+                            <field name="auth_id" invisible="not apply_auth" required="apply_auth" options="{'no_create':True,'no_open':True}"/>
+                            <field name="adapt_payload" widget="boolean_toggle"/>
+                            <field name="process_response" widget="boolean_toggle"/>
+                            <field name="verify_ssl" widget="boolean_toggle"/>
+                            <field name="sudo_fields" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Header Values" name="headers">
+                            <field name="header_ids">
+                                <list editable="bottom">
+                                    <field name="key"/>
+                                    <field name="value"/>
+                                </list>
+                            </field>
+                            <div class="oe_edit_only">
+                                <button name="base.action_res_users_my" string="Add a Header" type="action" class="btn-link"/>
+                            </div>
+                        </page>
+                        <page string="Adapt Headers" name="adapt_headers" invisible="not adapt_headers">
+                            <field name="code_headers" widget="code" options="{'mode': 'python'}"/>
+                        </page>
+                        <page string="Adapt Payload" name="adapt_payload" invisible="not adapt_payload">
+                            <field name="code_payload" widget="code" options="{'mode': 'python'}"/>
+                        </page>
+                        <page string="Process Response" name="process_response" invisible="not process_response">
+                            <field name="code_response" widget="code" options="{'mode': 'python'}"/>
+                        </page>
+                        <page string="Handle Error" name="handle_error" invisible="1">
+                            <field name="code_error" widget="code" options="{'mode': 'python'}"/>
+                        </page>
+                        <page string="Guide" name="guide">
+                            <div class="o_form_sheet">
+                                <div class="alert alert-info" role="alert">
+                                    <h4><i class="fa fa-globe me-2"/>Webhook Configuration — Field Details</h4>
+                                    <p>Detailed explanation for all fields available in the Webhook Configuration section.</p>
+                                </div>
+
+                                <table class="table table-bordered table-sm">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 30%;">Field</th>
+                                            <th style="width: 70%;">Description &amp; Usage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><b>Webhook URL</b></td>
+                                            <td>The destination URL where the data will be sent.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Method</b></td>
+                                            <td>The HTTP request type (Locked to POST).</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Timeout</b></td>
+                                            <td>Max seconds to wait for the remote server.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Run Type</b></td>
+                                            <td><b>Single:</b> Sends 1 request per record.<br/><b>Multi:</b> Sends 1 batch request for all records.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Send Type</b></td>
+                                            <td><b>Immediately:</b> Sends on button click.<br/><b>Post Commit:</b> Sends after DB save.<br/><b>Cron:</b> Queues for background sending.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Fields</b></td>
+                                            <td>The specific Odoo fields to include in the JSON.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Adapt Headers</b></td>
+                                            <td>Toggle to add custom HTTP headers via Python.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Apply Authentication</b></td>
+                                            <td>Toggle to use an Authentication Profile.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Authentication</b></td>
+                                            <td>The profile used for security (Basic only in the current flow).</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Adapt Payload</b></td>
+                                            <td>Toggle to modify the JSON data via Python.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Process Response</b></td>
+                                            <td>Toggle to handle the server's reply via Python.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Verify SSL</b></td>
+                                            <td>Verifies the SSL certificate of the remote server.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>Sudo Fields</b></td>
+                                            <td>Bypass record rules when reading field data.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_webhook_action_view_tree" model="ir.ui.view">
+        <field name="name">sh.webhook.action.view.tree</field>
+        <field name="model">sh.webhook.action</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="url"/>
+                <field name="method"/>
+                <field name="timeout"/>
+                <field name="send_type" widget="badge" decoration-info="send_type == 'immediately'" decoration-success="send_type == 'cron'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sh_webhook_test_wizard_view_form" model="ir.ui.view">
+        <field name="name">sh.webhook.test.wizard.view.form</field>
+        <field name="model">sh.webhook.test.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Test Webhook">
+                <group>
+                    <field name="webhook_id" readonly="1"/>
+                    <field name="model_id" readonly="1"/>
+                    <field name="res_id" placeholder="Enter Record ID to test"/>
+                </group>
+                <footer>
+                    <button name="action_test" string="Run Test" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="sh_webhook_action_view_search" model="ir.ui.view">
+        <field name="name">sh.webhook.action.view.search</field>
+        <field name="model">sh.webhook.action</field>
+        <field name="arch" type="xml">
+            <search string="Webhook Actions">
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="url"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                    <filter string="Run Type" name="group_run_type" context="{'group_by': 'run_type'}"/>
+                    <filter string="Send Type" name="group_send_type" context="{'group_by': 'send_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="sh_webhook_action_action" model="ir.actions.act_window">
+        <field name="name">Webhook Actions</field>
+        <field name="res_model">sh.webhook.action</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

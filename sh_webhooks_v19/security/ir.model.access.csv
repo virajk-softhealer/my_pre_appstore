@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sh_webhook_action,sh.webhook.action,model_sh_webhook_action,base.group_system,1,1,1,1
+access_sh_webhook_header,sh.webhook.header,model_sh_webhook_header,base.group_system,1,1,1,1
+access_sh_webhook_log,sh.webhook.log,model_sh_webhook_log,base.group_system,1,1,1,1
+access_sh_webhook_auth,sh.webhook.auth,model_sh_webhook_auth,base.group_system,1,1,1,1
+access_sh_webhook_test_wizard,sh.webhook.test.wizard,model_sh_webhook_test_wizard,base.group_system,1,1,1,1
+access_sh_webhook_incoming,sh.webhook.incoming,model_sh_webhook_incoming,base.group_system,1,1,1,1
