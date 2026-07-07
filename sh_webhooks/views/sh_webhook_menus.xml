@@ -6,7 +6,7 @@
     <menuitem id="sh_webhook_menu_action" name="Actions" parent="sh_webhook_menu_hooks" action="sh_webhook_action_action" sequence="10"/>
     <menuitem id="sh_webhook_menu_incoming" name="Requests" parent="sh_webhook_menu_hooks" action="sh_webhook_incoming_action" sequence="15"/>
     <menuitem id="sh_webhook_menu_automation" name="Automation" parent="sh_webhook_menu_hooks" action="base_automation.base_automation_act" sequence="20"/>
-    <menuitem id="sh_webhook_menu_schedule" name="Schedules" parent="sh_webhook_menu_hooks" action="sh_webhooks.sh_webhook_action_server_action" sequence="30"/>
+    <menuitem id="sh_webhook_menu_schedule" name="Server Action" parent="sh_webhook_menu_hooks" action="sh_webhooks.sh_webhook_action_server_action" sequence="30"/>
 
     <menuitem id="sh_webhook_menu_requests_parent" name="Analytics" parent="sh_webhook_menu_root" sequence="10"/>
     <menuitem id="sh_webhook_menu_requests" name="Traffic" parent="sh_webhook_menu_requests_parent" action="sh_webhook_log_action" sequence="10"/>

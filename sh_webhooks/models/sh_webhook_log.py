@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) Softhealer Technologies Pvt. Ltd.
 
-from odoo import models, fields,api
+from odoo import models, fields, api, _
 
 class ShWebhookLog(models.Model):
     _name = 'sh.webhook.log'
@@ -20,7 +20,6 @@ class ShWebhookLog(models.Model):
     res_model = fields.Char("Related Model", help="The technical name of the Odoo model (e.g., res.partner) associated with this webhook.")
     res_ids = fields.Text("Record IDs", help="The database IDs of the records that were processed in this webhook call.")
     
-    url = fields.Char("URL", help="The target URL where the webhook request was sent.")
     method = fields.Char("Method", help="The HTTP method used for the request (usually POST).")
     request_header = fields.Text("Request Header", help="The full JSON set of HTTP headers sent with the request.")
     request_body = fields.Text("Request Body", help="The actual data payload sent to the external server.")
@@ -33,7 +32,6 @@ class ShWebhookLog(models.Model):
         ('error', 'Error')
     ], string="Status", default='pending', help="Current state of the webhook: 'Pending' means it is waiting for the background Cron, 'Success' means it was delivered, and 'Error' means it failed.")
     error_msg = fields.Text("Error Message", help="If the webhook failed, the technical error message will be shown here.")
-    retry_count = fields.Integer("Retry Count", default=0, help="Number of times the system tried to re-send this failed webhook (Maximum: 3 tries).")
     company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company, help="The company associated with this webhook log.")
 
     @api.model
@@ -43,3 +41,26 @@ class ShWebhookLog(models.Model):
             DELETE FROM sh_webhook_log 
             WHERE create_date < (now() - interval '30 days')
         """)
+
+    def action_retry(self):
+        """Reset selected queue items back to pending."""
+        for record in self:
+            record.write({
+                'state': 'pending',
+                'error_msg': False,
+                'status_code': False,
+            })
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Queue Reset'),
+                'message': _('Selected queue records have been reset to Pending.'),
+                'sticky': False,
+                'type': 'success',
+                'next': {
+                    'type': 'ir.actions.client',
+                    'tag': 'reload',
+                },
+            }
+        }

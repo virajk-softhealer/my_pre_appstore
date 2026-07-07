@@ -31,12 +31,10 @@ class ShWebhookAction(models.Model):
     ], string="Run Type", default='multi', required=True, help="Single: Send one request per record. Multi: Send one request containing all records in a list.")
     send_type = fields.Selection([
         ('immediately', 'Immediately'),
-        # ('post_commit', 'Post Commit'),
         ('cron', 'Cron Job')
     ], string="Send Type", default='immediately', required=True, help="Immediately: Send during the save process. Cron Job: Send in the background every 5 minutes (Recommended for high performance).")
     field_ids = fields.Many2many('ir.model.fields', string="Fields", help="Choose specific fields to trigger the webhook. If empty, any change to the record will trigger it.")
     
-    adapt_url = fields.Boolean("Adapt URL", help="Enable this to modify the URL dynamically using Python code.")
     adapt_headers = fields.Boolean("Adapt Headers", help="Enable this to add dynamic headers using Python code.")
     apply_auth = fields.Boolean("Apply Authentication", help="Enable this to use a pre-configured Authentication profile (like Basic or API Key).")
     adapt_payload = fields.Boolean("Adapt Payload", help="Enable this to customize the JSON structure of the sent data using Python code.")
@@ -44,14 +42,18 @@ class ShWebhookAction(models.Model):
     verify_ssl = fields.Boolean("Verify SSL", default=True, help="If enabled, Odoo will check the SSL certificate of the target server. Disable for local/untrusted testing.")
     sudo_fields = fields.Boolean("Sudo Fields", help="If enabled, Odoo will fetch the record data with full system permissions, bypassing record rules.")
     
-    auth_id = fields.Many2one('sh.webhook.auth', string="Authentication", tracking=True, help="Select the authentication profile to use for this webhook.")
+    auth_id = fields.Many2one(
+        'sh.webhook.auth',
+        string="Authentication",
+        domain="[('state','=','success'),('active','=',True)]",
+        tracking=True,
+        help="Select the authentication profile to use for this webhook.",
+    )
     header_ids = fields.One2many('sh.webhook.header', 'webhook_id', string="Header Values", help="Add custom static HTTP headers here.")
-    
-    code_url = fields.Text("URL Code", help="Python code to compute the final URL. Use 'url' variable.")
+
     code_headers = fields.Text("Headers Code", help="Python code to compute extra headers. Use 'headers' dictionary.")
     code_payload = fields.Text("Payload Code", help="Python code to compute the data payload. Use 'payload' variable.")
     code_response = fields.Text("Response Code", help="Python code to process the server's response. Available: 'response', 'records', 'env', 'json'.")
-    code_error = fields.Text("Error Code", help="Python code to run if the request fails. Available: 'error', 'records', 'env'.")
     
     company_id = fields.Many2one(
         'res.company', 
@@ -70,6 +72,8 @@ class ShWebhookAction(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        if 'apply_auth' in vals and not vals.get('apply_auth'):
+            self.auth_id = False
         if any(f in vals for f in ['name', 'model_id']):
             for rec in self:
                 rec._update_server_action()
@@ -128,6 +132,27 @@ class ShWebhookAction(models.Model):
             'UserError': UserError,
         }
 
+    def _normalize_headers(self, headers):
+        """Return a requests-safe header mapping."""
+        normalized_headers = {}
+        for key, value in (headers or {}).items():
+            if key in (None, False):
+                continue
+
+            header_key = str(key).strip()
+            if not header_key:
+                continue
+
+            if value in (None, False):
+                value = ''
+
+            if not isinstance(value, (str, bytes)):
+                value = str(value)
+
+            normalized_headers[header_key] = value
+
+        return normalized_headers
+
     def _prepare_payload(self, records):
         """ Prepare the payload for the webhook """
         payload = []
@@ -144,28 +169,31 @@ class ShWebhookAction(models.Model):
             eval_context['payload'] = final_payload
             safe_eval(self.code_payload, eval_context, mode='exec')
             return eval_context.get('payload', final_payload)
-        
+
         return final_payload
 
     def _prepare_headers(self, records):
         """ Prepare the headers for the webhook """
-        headers = {header.key: header.value for header in self.header_ids}
+        headers = self._normalize_headers({header.key: header.value for header in self.header_ids})
         if self.adapt_headers and self.code_headers:
             eval_context = self._get_eval_context(records)
             eval_context['headers'] = headers
             safe_eval(self.code_headers, eval_context, mode='exec')
             headers = eval_context.get('headers', headers)
-        return headers
+        return self._normalize_headers(headers)
 
-    def _prepare_url(self, records):
-        """ Prepare the URL for the webhook """
-        url = self.url
-        if self.adapt_url and self.code_url:
-            eval_context = self._get_eval_context(records)
-            eval_context['url'] = url
-            safe_eval(self.code_url, eval_context, mode='exec')
-            url = eval_context.get('url', url)
-        return url
+    def _ensure_authenticated_profile(self):
+        """Ensure the selected auth profile is confirmed before use."""
+        self.ensure_one()
+        if self.apply_auth and self.auth_id and self.auth_id.state != 'success':
+            raise UserError(
+                _("Please confirm the selected Authentication profile before enabling Apply Authentication.")
+            )
+
+    def _get_request_auth(self, headers, payload):
+        """Return request data with auth stripped to the reference-module flow."""
+        request_headers = dict(headers or {})
+        return self.url, request_headers, payload, None
 
     def trigger_webhook(self, records):
         """ Main method to trigger the webhook call """
@@ -182,31 +210,24 @@ class ShWebhookAction(models.Model):
         """ Internal helper to handle the sending logic (immediate, post-commit, etc.) """
         if self.send_type == 'immediately':
             self._send_request(records)
-        # elif self.send_type == 'post_commit':
-        #     # Use post-commit logic (currently on hold)
-        #     record_ids = records.ids
-        #     self.env.cr.postcommit.add(lambda: self._send_request_with_new_env(record_ids))
         elif self.send_type == 'cron':
             # Create a pending log entry to be processed by the background Cron
-            url = self._prepare_url(records)
             headers = self._prepare_headers(records)
             payload = self._prepare_payload(records)
-            self._log_request(url, headers, payload, records=records, state='pending')
+            self._log_request(self.url, headers, payload, records=records, state='pending')
 
     def _process_webhook_queue(self):
-        """ Background task to process pending or failed webhooks with retries """
-        # Search for Pending OR Error logs that have tried less than 3 times
+        """ Background task to process pending outbound and inbound webhook logs. """
+        # Outbound pending logs.
         logs_to_process = self.env['sh.webhook.log'].search([
             ('webhook_id', '!=', False),
-            '|',
             ('state', '=', 'pending'),
-            '&', ('state', '=', 'error'), ('retry_count', '<', 3)
         ], limit=100)
         
         for log in logs_to_process:
             webhook = log.webhook_id
             try:
-                # Re-apply authentication if needed
+                webhook._ensure_authenticated_profile()
                 try:
                     headers = json.loads(log.request_header or '{}')
                     if not isinstance(headers, dict):
@@ -217,16 +238,12 @@ class ShWebhookAction(models.Model):
                     payload = json.loads(log.request_body or '{}')
                 except Exception:
                     payload = {}
-                auth = None
-                if webhook.apply_auth and webhook.auth_id:
-                    if webhook.auth_id.auth_type == 'basic':
-                        auth = (webhook.auth_id.username, webhook.auth_id.password)
-                    elif webhook.auth_id.auth_type == 'bearer':
-                        headers['Authorization'] = f"Bearer {webhook.auth_id.token}"
+
+                request_url, headers, payload, auth = webhook._get_request_auth(headers, payload)
 
                 response = requests.request(
                     method=webhook.method,
-                    url=log.url,
+                    url=request_url,
                     headers=headers,
                     auth=auth,
                     json=payload if webhook.method in ['POST', 'PUT', 'PATCH'] else None,
@@ -254,65 +271,37 @@ class ShWebhookAction(models.Model):
                     'status_code': response.status_code,
                     'state': 'success' if 200 <= response.status_code < 300 else 'error',
                     'error_msg': False if 200 <= response.status_code < 300 else log.error_msg,
-                    'retry_count': log.retry_count + (1 if response.status_code >= 300 else 0)
                 })
             except Exception as e:
                 log.write({
                     'state': 'error',
                     'error_msg': str(e),
-                    'retry_count': log.retry_count + 1
                 })
             # Commit after each one to ensure progress is saved
             self.env.cr.commit()
 
-    # def _send_request_with_new_env(self, record_ids):
-    #     """ Send request with a fresh environment (for post-commit) """
-    #     db_name = self.env.cr.dbname
-    #     registry = odoo.modules.registry.Registry(db_name)
-    #     with registry.cursor() as new_cr:
-    #         new_env = odoo.api.Environment(new_cr, self.env.uid, self.env.context)
-    #         # We must browse the action in the NEW environment
-    #         self.with_env(new_env)._send_request(new_env[self.model_name].browse(record_ids))
-    #         new_cr.commit()
-
     def _send_request(self, records):
         """ Perform the actual HTTP request """
-        url = self.url
+        url=self.url
         headers = {}
         payload = {}
         try:
-            url = self._prepare_url(records)
+            self._ensure_authenticated_profile()
             headers = self._prepare_headers(records)
             payload = self._prepare_payload(records)
-            
-            # Apply Authentication
-            auth = None
-            if self.apply_auth and self.auth_id:
-                if self.auth_id.auth_type == 'basic':
-                    auth = (self.auth_id.username, self.auth_id.password)
-                elif self.auth_id.auth_type == 'bearer':
-                    headers['Authorization'] = f"Bearer {self.auth_id.token}"
-                elif self.auth_id.auth_type == 'apikey':
-                    if self.auth_id.api_key_location == 'header':
-                        headers[self.auth_id.api_key_name] = self.auth_id.api_key_value
-                    else:
-                        if self.method == 'GET':
-                            payload[self.auth_id.api_key_name] = self.auth_id.api_key_value
-                        else:
-                            # Add to URL params if not GET
-                            url += ('?' if '?' not in url else '&') + f"{self.auth_id.api_key_name}={self.auth_id.api_key_value}"
+            url, headers, payload, auth = self._get_request_auth(headers, payload)
 
             response = requests.request(
                 method=self.method,
                 url=url,
                 headers=headers,
                 auth=auth,
-                json=payload if self.method in ['POST', 'PUT', 'PATCH'] else None,
+                json=payload if self.method == 'POST' else None,
                 params=payload if self.method == 'GET' else None,
                 timeout=self.timeout,
                 verify=self.verify_ssl
             )
-            
+
             if self.process_response and self.code_response:
                 eval_context = self._get_eval_context(records)
                 eval_context['response'] = response
@@ -320,24 +309,14 @@ class ShWebhookAction(models.Model):
                     with self.env.cr.savepoint():
                         safe_eval(self.code_response, eval_context, mode='exec')
                 except Exception as e:
-                    # If script fails, we log it and raise it to the outer block to ensure log state is 'error'
                     _logger.error("Webhook Process Response Error: %s", str(e))
-                    raise e
+                    raise UserError(_("Webhook process response failed:\n%s") % str(e))
             
             self._log_request(url, headers, payload, records=records, response=response)
                 
         except Exception as e:
             _logger.error("Webhook Error: %s", str(e))
             self._log_request(url, headers, payload, records=records, error=e)
-            if self.code_error:
-                eval_context = self._get_eval_context(records)
-                eval_context['error'] = e
-                try:
-                    safe_eval(self.code_error, eval_context, mode='exec')
-                except Exception as err:
-                    _logger.error("Webhook Error Code Exception: %s", str(err))
-            
-            # Raise UserError to stop the transaction and display the error properly
             raise UserError(_("Webhook Execution Failed:\n%s") % str(e))
 
     def _log_request(self, url, headers, payload, records=None, response=None, error=None, state=None):
@@ -352,16 +331,24 @@ class ShWebhookAction(models.Model):
         if records:
             res_ids = ','.join(map(str, records.ids))
 
+        computed_state = state
+        if not computed_state:
+            if response is not None:
+                computed_state = 'success' if 200 <= response.status_code < 300 else 'error'
+            elif error:
+                computed_state = 'error'
+            else:
+                computed_state = 'pending'
+
         log_vals = {
             'webhook_id': self.id,
-            'url': url,
             'method': self.method,
             'request_header': json_safe(headers),
             'request_body': json_safe(payload),
             'company_id': self.company_id.id,
             'res_model': self.model_name,
             'res_ids': res_ids,
-            'state': state or ('pending' if not response and not error else 'success' if response and 200 <= response.status_code < 300 else 'error'),
+            'state': computed_state,
         }
         if response is not None:
             log_vals.update({
@@ -390,4 +377,3 @@ class ShWebhookHeader(models.Model):
     webhook_id = fields.Many2one('sh.webhook.action', string="Webhook", required=True, ondelete='cascade')
     key = fields.Char("Key", required=True)
     value = fields.Char("Value", required=True)
-
