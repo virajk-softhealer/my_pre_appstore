@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_snowflake_database_tree" model="ir.ui.view">
+        <field name="name">snowflake.database.tree</field>
+        <field name="model">snowflake.database</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="connection_id"/>
+                <field name="schema_name"/>
+                <field name="table_count"/>
+                <field name="state" widget="badge" decoration-success="state == 'published'" decoration-warning="state == 'to_publish'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_snowflake_database_search" model="ir.ui.view">
+        <field name="name">snowflake.database.search</field>
+        <field name="model">snowflake.database</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="connection_id"/>
+                <filter string="Published" name="published" domain="[('state', '=', 'published')]"/>
+                <filter string="To Publish" name="to_publish" domain="[('state', '=', 'to_publish')]"/>
+                <group name="group_by">
+                    <filter string="Connection" name="group_connection" context="{'group_by': 'connection_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_snowflake_database_form" model="ir.ui.view">
+        <field name="name">snowflake.database.form</field>
+        <field name="model">snowflake.database</field>
+        <field name="arch" type="xml">
+            <form string="Snowflake Database">
+                <header>
+                    <button name="action_create_database" 
+                        type="object" string="Create Database" 
+                        class="btn-primary" invisible="state == 'published'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="to_publish,published"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_fetch_tables" 
+                            type="object" class="oe_stat_button" 
+                            icon="fa-table"
+                            invisible="not table_count">
+                            <field name="table_count" widget="statinfo" string="Tables"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="state == 'published'"/>
+                            <field name="connection_id" domain="[('state', '=', 'tested')]" readonly="state == 'published'"/>
+                            <field name="schema_name" readonly="state == 'published'"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="created_by_id" readonly="1"/>
+                            <field name="created_on" readonly="1"/>
+                            <field name="last_updated_on" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Tables">
+                        <field name="table_ids" widget="many2many_tags" context="{'database_id':id,'schema_name':schema_name}"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_snowflake_database" model="ir.actions.act_window">
+        <field name="name">Databases</field>
+        <field name="res_model">snowflake.database</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_snowflake_database_search"/>
+    </record>
+</odoo>

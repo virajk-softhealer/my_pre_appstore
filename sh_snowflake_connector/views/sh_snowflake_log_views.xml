@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_snowflake_sync_log_tree" model="ir.ui.view">
+        <field name="name">snowflake.sync.log.tree</field>
+        <field name="model">snowflake.sync.log</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="table_config_id"/>
+                <field name="sync_type"/>
+                <field name="new_record_count"/>
+                <field name="updated_record_count"/>
+                <field name="total_record_count"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_snowflake_sync_log_form" model="ir.ui.view">
+        <field name="name">snowflake.sync.log.form</field>
+        <field name="model">snowflake.sync.log</field>
+        <field name="arch" type="xml">
+            <form string="Snowflake Sync Log">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="table_config_id"/>
+                            <field name="sync_type"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="new_record_count"/>
+                            <field name="updated_record_count"/>
+                            <field name="total_record_count"/>
+                            <field name="duration_seconds"/>
+                        </group>
+                    </group>
+                    <field name="error_message" invisible="status != 'failed'"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_snowflake_sync_log_search" model="ir.ui.view">
+        <field name="name">snowflake.sync.log.search</field>
+        <field name="model">snowflake.sync.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="table_config_id"/>
+                <field name="sync_type"/>
+                <filter string="Success" name="success" domain="[('status', '=', 'success')]"/>
+                <filter string="Failed" name="failed" domain="[('status', '=', 'failed')]"/>
+                <group name="group_by">
+                    <filter string="Table Config" name="group_table" context="{'group_by': 'table_config_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_snowflake_sync_log" model="ir.actions.act_window">
+        <field name="name">Sync Logs</field>
+        <field name="res_model">snowflake.sync.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_snowflake_sync_log_search"/>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="view_snowflake_migration_log_tree" model="ir.ui.view">
+        <field name="name">snowflake.migration.log.tree</field>
+        <field name="model">snowflake.migration.log</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="table_config_id"/>
+                <field name="added_columns"/>
+                <field name="removed_columns"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_snowflake_migration_log_form" model="ir.ui.view">
+        <field name="name">snowflake.migration.log.form</field>
+        <field name="model">snowflake.migration.log</field>
+        <field name="arch" type="xml">
+            <form string="Snowflake Migration Log">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="table_config_id"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="added_columns"/>
+                            <field name="removed_columns"/>
+                        </group>
+                    </group>
+                    <field name="altered_columns"/>
+                    <field name="error_message" invisible="status != 'failed'"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_snowflake_migration_log_search" model="ir.ui.view">
+        <field name="name">snowflake.migration.log.search</field>
+        <field name="model">snowflake.migration.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="table_config_id"/>
+                <filter string="Success" name="success" domain="[('status', '=', 'success')]"/>
+                <filter string="Failed" name="failed" domain="[('status', '=', 'failed')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_snowflake_migration_log" model="ir.actions.act_window">
+        <field name="name">Migration Logs</field>
+        <field name="res_model">snowflake.migration.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_snowflake_migration_log_search"/>
+        <field name="context">{'create': False}</field>
+    </record>
+</odoo>

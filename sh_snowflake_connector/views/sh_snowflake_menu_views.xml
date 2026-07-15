@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_snowflake_root" name="Snowflake Connector" sequence="10"/>
+    <menuitem id="menu_snowflake_dashboard" name="Dashboard" parent="menu_snowflake_root" sequence="5" action="action_snowflake_dashboard" groups="sh_snowflake_connector.group_snowflake_manager"/>
+    <menuitem id="menu_snowflake_connections" name="Connections" parent="menu_snowflake_root" sequence="10" action="action_snowflake_connection" groups="sh_snowflake_connector.group_snowflake_manager"/>
+    <menuitem id="menu_snowflake_databases" name="Databases" parent="menu_snowflake_root" sequence="20" action="action_snowflake_database" groups="sh_snowflake_connector.group_snowflake_manager"/>
+    <menuitem id="menu_snowflake_tables" name="Table Configurations" parent="menu_snowflake_root" sequence="30" action="action_snowflake_table_config" groups="sh_snowflake_connector.group_snowflake_manager"/>
+    <menuitem id="menu_snowflake_field_mappings" name="Field Mappings" parent="menu_snowflake_root" sequence="40" action="action_snowflake_field_mapping" groups="sh_snowflake_connector.group_snowflake_manager"/>
+    <menuitem id="menu_snowflake_sync_logs" name="Sync Logs" parent="menu_snowflake_root" sequence="50" action="action_snowflake_sync_log" groups="sh_snowflake_connector.group_snowflake_user"/>
+    <menuitem id="menu_snowflake_migration_logs" name="Migration Logs" parent="menu_snowflake_root" sequence="60" action="action_snowflake_migration_log" groups="sh_snowflake_connector.group_snowflake_user"/>
+
+    <menuitem id="menu_snowflake_configuration" name="Configuration" parent="menu_snowflake_root" sequence="90" groups="sh_snowflake_connector.group_snowflake_manager"/>
+</odoo>

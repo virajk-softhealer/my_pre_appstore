@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_snowflake_dashboard_form" model="ir.ui.view">
+        <field name="name">snowflake.dashboard.form</field>
+        <field name="model">snowflake.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Snowflake Dashboard">
+                <sheet>
+                    <group col="4">
+                        <field name="connection_count" readonly="1"/>
+                        <field name="tested_connection_count" readonly="1"/>
+                        <field name="database_count" readonly="1"/>
+                        <field name="table_config_count" readonly="1"/>
+                        <field name="pending_migration_count" readonly="1"/>
+                        <field name="sync_log_count" readonly="1"/>
+                        <field name="failed_sync_count" readonly="1"/>
+                        <field name="migration_log_count" readonly="1"/>
+                    </group>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_connections" type="object" class="oe_stat_button" icon="fa-plug">
+                            <span class="o_stat_text">Connections</span>
+                        </button>
+                        <button name="action_open_databases" type="object" class="oe_stat_button" icon="fa-database">
+                            <span class="o_stat_text">Databases</span>
+                        </button>
+                        <button name="action_open_table_configs" type="object" class="oe_stat_button" icon="fa-table">
+                            <span class="o_stat_text">Tables</span>
+                        </button>
+                        <button name="action_open_sync_logs" type="object" class="oe_stat_button" icon="fa-history">
+                            <span class="o_stat_text">Sync Logs</span>
+                        </button>
+                        <button name="action_open_migration_logs" type="object" class="oe_stat_button" icon="fa-exchange">
+                            <span class="o_stat_text">Migration Logs</span>
+                        </button>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_snowflake_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">snowflake.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

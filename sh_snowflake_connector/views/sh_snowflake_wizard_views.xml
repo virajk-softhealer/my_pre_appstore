@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_snowflake_column_preview_wizard_form" model="ir.ui.view">
+        <field name="name">snowflake.column.preview.wizard.form</field>
+        <field name="model">snowflake.column.preview</field>
+        <field name="arch" type="xml">
+            <form string="Column Preview">
+                <sheet>
+                    <group>
+                        <field name="table_config_id" readonly="1"/>
+                        <field name="preview_text" nolabel="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_refresh" type="object" string="Refresh Preview" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_snowflake_data_preview_wizard_form" model="ir.ui.view">
+        <field name="name">snowflake.data.preview.wizard.form</field>
+        <field name="model">snowflake.data.preview</field>
+        <field name="arch" type="xml">
+            <form string="Data Preview">
+                <sheet>
+                    <group>
+                        <field name="table_config_id" readonly="1"/>
+                        <field name="preview_text" nolabel="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_refresh" type="object" string="Refresh Preview" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_snowflake_test_connection_wizard_form" model="ir.ui.view">
+        <field name="name">snowflake.test.connection.wizard.form</field>
+        <field name="model">snowflake.test.connection.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Test Connection">
+                <sheet>
+                    <group>
+                        <field name="connection_id"/>
+                        <field name="result_state" readonly="1"/>
+                        <field name="result_message" readonly="1" nolabel="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_test" type="object" string="Test Now" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

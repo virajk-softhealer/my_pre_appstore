@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_snowflake_table_config_tree" model="ir.ui.view">
+        <field name="name">snowflake.table.config.tree</field>
+        <field name="model">snowflake.table.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="database_id"/>
+                <field name="model_id"/>
+                <field name="table_state" widget="badge" decoration-success="table_state == 'created'" decoration-warning="table_state == 'not_created'"/>
+                <field name="migration_state" widget="badge" decoration-success="migration_state == 'up_to_date'" decoration-warning="migration_state == 'pending_migration'"/>
+                <field name="created_by_id"/>
+                <field name="created_on"/>
+                <field name="last_updated_on"/>
+                <field name="last_sync_date"/>
+                <field name="last_sync_status" widget="badge" decoration-success="last_sync_status == 'success'" decoration-danger="last_sync_status == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_snowflake_table_config_search" model="ir.ui.view">
+        <field name="name">snowflake.table.config.search</field>
+        <field name="model">snowflake.table.config</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="database_id"/>
+                <field name="model_id"/>
+                <filter string="Created" name="created" domain="[('table_state', '=', 'created')]"/>
+                <filter string="Pending Migration" name="pending" domain="[('migration_state', '=', 'pending_migration')]"/>
+                <group name="group_by">
+                    <filter string="Database" name="group_database" context="{'group_by': 'database_id'}"/>
+                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_snowflake_table_config_form" model="ir.ui.view">
+        <field name="name">snowflake.table.config.form</field>
+        <field name="model">snowflake.table.config</field>
+        <field name="arch" type="xml">
+            <form string="Snowflake Table Configuration">
+                <header>
+                    <button name="action_publish_table" type="object" string="Publish Table" class="btn-primary" invisible="table_state == 'created'"/>
+                    <button name="action_remove_table" type="object" string="Remove Table" class="btn-danger" invisible="table_state != 'created'"/>
+                    <button name="action_sync_data" type="object" string="Sync Data to Snowflake" class="btn btn-primary" invisible="table_state != 'created'"/>
+                    <button name="action_unpublish_table" type="object" string="Unpublish Table" class="btn btn-secondary" invisible="table_state != 'created'"/>
+                    <button name="action_delete_table_data" type="object" string="Delete Table Data" class="btn btn-secondary" invisible="table_state != 'created'"/>
+                    <button name="action_update_table" type="object" string="Alter Table" class="btn btn-secondary" invisible="table_state != 'created' or migration_state != 'pending_migration'"/>
+                    <field name="table_state" widget="statusbar" statusbar_visible="not_created,created"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Pending Migration" bg_color="bg-warning" invisible="migration_state != 'pending_migration'"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_field_mappings" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="field_mapping_ids" widget="statinfo" string="Field Mappings"/>
+                        </button>
+                        <button name="action_open_sync_logs" type="object" class="oe_stat_button" icon="fa-history">
+                            <field name="sync_log_ids" widget="statinfo" string="Sync Logs"/>
+                        </button>
+                        <button name="action_open_migration_logs" type="object" class="oe_stat_button" icon="fa-exchange">
+                            <field name="migration_log_ids" widget="statinfo" string="Migration Logs"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="table_state == 'created'"/>
+                            <field name="database_id" readonly="table_state == 'created'" options="{'no_create':True,'no_open':True}"/>
+                            <field name="model_id" readonly="table_state == 'created'" options="{'no_create':True,'no_open':True}"/>
+                            <field name="schema_name" readonly="table_state == 'created'"/>
+                            <field name="use_table_relationship" readonly="table_state == 'created'"/>
+                            <field name="sync_existing_data" readonly="table_state == 'created'"/>
+                            <field name="cron_export_data" readonly="table_state == 'created'"/>
+                            <field name="connection_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="model_name" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="created_by_id" readonly="1"/>
+                            <field name="created_on" readonly="1"/>
+                            <field name="last_updated_on" readonly="1"/>
+                            <field name="last_sync_date" readonly="1" string="Last Sync At"/>
+                            <field name="table_schema_version" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Columns">
+                            <button name="action_generate_field_mapping" type="object" string="Auto-Generate Columns" class="btn-secondary" invisible="table_state == 'created'"/>
+                            <field name="select_all_columns"/>
+                            <field name="field_mapping_ids" context="{'default_table_config_id': id, 'default_model_id': model_id}">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="column_name"/>
+                                    <field name="column_type"/>
+                                    <field name="column_sync_state" widget="badge" decoration-success="column_sync_state == 'published'" decoration-warning="column_sync_state == 'not_published'" decoration-danger="column_sync_state == 'deleted'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Filter Detail">
+                            <group>
+                                <group>
+                                    <field
+                                        name="domain_filter"
+                                        widget="domain"
+                                        options="{'model': 'model_name'}"
+                                        nolabel="1"
+                                    />
+                                   
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_snowflake_table_config" model="ir.actions.act_window">
+        <field name="name">Table Configurations</field>
+        <field name="res_model">snowflake.table.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_snowflake_table_config_search"/>
+    </record>
+</odoo>
