@@ -7,6 +7,7 @@ from odoo import fields, models
 class SnowflakeMigrationLog(models.Model):
     _name = "snowflake.migration.log"
     _description = "Snowflake Migration Log"
+    _rec_name = "table_config_id"
     _order = "date desc, id desc"
 
     table_config_id = fields.Many2one("snowflake.table.config", required=True, ondelete="cascade", index=True)
@@ -17,4 +18,3 @@ class SnowflakeMigrationLog(models.Model):
     altered_columns = fields.Text()
     status = fields.Selection([("success", "Success"), ("failed", "Failed")], required=True)
     error_message = fields.Text()
-

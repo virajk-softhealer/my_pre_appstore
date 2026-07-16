@@ -295,7 +295,6 @@ History of every data export/sync run (Features #16, #17, #24).
 | `sync_type` | Selection `[('manual','Manual'),('scheduled','Scheduled')]` | |
 | `new_record_count` | Integer | Records inserted |
 | `updated_record_count` | Integer | Records merged/updated |
-| `total_record_count` | Integer (computed) | new + updated |
 | `status` | Selection `[('success','Success'),('failed','Failed')]` | |
 | `error_message` | Text | Full traceback if failed |
 | `duration_seconds` | Float | Execution time |
