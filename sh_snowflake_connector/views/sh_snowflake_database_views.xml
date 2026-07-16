@@ -37,9 +37,12 @@
         <field name="arch" type="xml">
             <form string="Snowflake Database">
                 <header>
-                    <button name="action_create_database" 
-                        type="object" string="Create Database" 
+                    <button name="action_create_database"
+                        type="object" string="Create Database"
                         class="btn-primary" invisible="state == 'published'"/>
+                    <button name="action_delete_database"
+                        type="object" string="Delete Database"
+                        class="btn-secondary" invisible="state != 'published'"/>
                     <field name="state" widget="statusbar" statusbar_visible="to_publish,published"/>
                 </header>
                 <sheet>

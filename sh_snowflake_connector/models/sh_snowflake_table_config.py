@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 # Copyright (C) Softhealer Technologies Pvt. Ltd.
 
+import base64
 import logging
 import time
 from ast import literal_eval
@@ -33,13 +34,12 @@ class SnowflakeTableConfig(models.Model):
     model_id = fields.Many2one("ir.model", required=True, ondelete="cascade", tracking=True)
     model_name = fields.Char(related="model_id.model", store=True, readonly=True)
     field_mapping_ids = fields.One2many("snowflake.field.mapping", "table_config_id", string="Field Mapping")
-    select_all_columns = fields.Boolean(compute="_compute_select_all_columns", inverse="_inverse_select_all_columns")
     domain_filter = fields.Char(default="[]", tracking=True)
     table_state = fields.Selection(
         [("not_created", "Not Created"), ("created", "Created")],
         default="not_created",
         readonly=True,
-        tracking=True,
+        tracking=True,string="State"
     )
     migration_state = fields.Selection(
         [("up_to_date", "Up To Date"), ("pending_migration", "Pending Migration")],
@@ -84,28 +84,28 @@ class SnowflakeTableConfig(models.Model):
             "many2one": "NUMBER",
             "one2many": "VARIANT",
             "many2many": "VARIANT",
-            "binary": "VARIANT",
+            "binary": "BINARY",
         }
         return mapping.get(field_type, "VARCHAR")
-
-    @api.depends("field_mapping_ids.is_included", "field_mapping_ids.active")
-    def _compute_select_all_columns(self):
-        for record in self:
-            active_lines = record.field_mapping_ids.filtered("active")
-            record.select_all_columns = bool(active_lines) and all(active_lines.mapped("is_included"))
-
-    def _inverse_select_all_columns(self):
-        for record in self:
-            active_lines = record.field_mapping_ids.filtered("active")
-            if active_lines:
-                active_lines.write({"is_included": record.select_all_columns})
 
     def _get_odoo_fields(self):
         self.ensure_one()
         return self.env["ir.model.fields"].search([("model_id", "=", self.model_id.id), ("store", "=", True)], order="id")
 
+    def _ensure_connection_is_tested(self):
+        self.ensure_one()
+        if not self.connection_id or self.connection_id.state != "tested":
+            raise UserError(_("Test the Snowflake connection first."))
+
+    def _ensure_database_is_published(self):
+        self.ensure_one()
+        if not self.database_id or self.database_id.state != "published":
+            raise UserError(_("Publish the Snowflake database first."))
+
     def _get_snowflake_connection(self):
         self.ensure_one()
+        self._ensure_connection_is_tested()
+        self._ensure_database_is_published()
         return self.connection_id._open_connection()
 
     def _get_table_sql_name(self):
@@ -127,7 +127,7 @@ class SnowflakeTableConfig(models.Model):
                 "WHERE TABLE_SCHEMA = %%s AND TABLE_NAME = %%s"
             ) % _quote_sql_identifier(self.database_id.name)
             cursor.execute(sql, (self.schema_name, self.name))
-            return {row[0].upper(): (row[1] or "").upper() for row in cursor.fetchall()}
+            return {row[0].upper(): (row[0], (row[1] or "").upper()) for row in cursor.fetchall()}
         finally:
             connection.close()
 
@@ -147,14 +147,30 @@ class SnowflakeTableConfig(models.Model):
         self._ensure_snowflake_namespace(cursor)
         cursor.execute(self._build_create_table_sql())
 
+    def _update_column_sync_states(
+        self,
+        state_by_column_name=None,
+        table_state="published",
+        table_column_state="not_published",
+    ):
+        """Store column stage values from explicit table actions."""
+        state_by_column_name = state_by_column_name or {}
+        for record in self:
+            for line in record.field_mapping_ids:
+                if not line.active:
+                    state = table_column_state
+                else:
+                    state = state_by_column_name.get(line.column_name.upper())
+                    if not state:
+                        state = table_state if line.is_included else table_column_state
+                line.write({"column_sync_state": state})
+
     def action_generate_field_mapping(self):
         for record in self:
             existing = record.field_mapping_ids.mapped("field_name")
             field_values = []
             for field in record._get_odoo_fields():
                 if field.name in existing:
-                    continue
-                if field.ttype == "binary":
                     continue
                 field_values.append(
                     (
@@ -173,12 +189,22 @@ class SnowflakeTableConfig(models.Model):
                 record.write({"field_mapping_ids": field_values})
         return True
 
-    def action_open_export_wizard(self):
-        return self.action_sync_data()
-
     def action_sync_data(self):
         self.ensure_one()
-        summary = self.action_export_data(incremental=bool(self.last_sync_date))
+        _logger.info(
+            "Snowflake manual sync started for table config %s (%s).",
+            self.id,
+            self.display_name,
+        )
+        summary = self.action_export_data(incremental=False)
+        _logger.info(
+            "Snowflake manual sync finished for table config %s (%s): new=%s updated=%s failed=%s.",
+            self.id,
+            self.display_name,
+            summary["new_record_count"],
+            summary["updated_record_count"],
+            summary["failed_record_count"],
+        )
         if summary["status"] == "success":
             message = _(
                 "Export completed successfully. %(new)s new record(s) and %(updated)s updated record(s) were synced."
@@ -249,6 +275,8 @@ class SnowflakeTableConfig(models.Model):
                 column_sql = "%s DATE" % _quote_sql_identifier(mapping.column_name)
             elif mapping.column_type == "TIMESTAMP_NTZ":
                 column_sql = "%s TIMESTAMP_NTZ" % _quote_sql_identifier(mapping.column_name)
+            elif mapping.column_type == "BINARY":
+                column_sql = "%s BINARY" % _quote_sql_identifier(mapping.column_name)
             else:
                 column_sql = "%s VARIANT" % _quote_sql_identifier(mapping.column_name)
             columns.append(column_sql)
@@ -267,6 +295,7 @@ class SnowflakeTableConfig(models.Model):
                     connection.commit()
                 finally:
                     connection.close()
+                record._update_column_sync_states()
                 record.table_state = "created"
                 record.migration_state = "up_to_date"
                 record.table_schema_version = 1
@@ -282,6 +311,9 @@ class SnowflakeTableConfig(models.Model):
 
     def action_check_migration(self):
         for record in self:
+            if record.table_state != "created":
+                record.migration_state = "up_to_date"
+                continue
             if not record.field_mapping_ids:
                 record.migration_state = "pending_migration"
                 continue
@@ -291,7 +323,8 @@ class SnowflakeTableConfig(models.Model):
                 for mapping in record.field_mapping_ids.filtered("is_included")
             }
             normalized_existing_columns = {
-                name: record._normalize_snowflake_column_type(data_type) for name, data_type in existing_columns.items()
+                name: record._normalize_snowflake_column_type(data_type)
+                for name, (_, data_type) in existing_columns.items()
             }
             if set(normalized_existing_columns.keys()) != set(mapped_columns.keys()):
                 record.migration_state = "pending_migration"
@@ -303,6 +336,15 @@ class SnowflakeTableConfig(models.Model):
     def action_migrate_schema(self):
         for record in self:
             try:
+                _logger.info(
+                    "Snowflake schema migration started for table config %s (%s).",
+                    record.id,
+                    record.display_name,
+                )
+                if record.migration_state != "pending_migration":
+                    record.action_check_migration()
+                if record.migration_state != "pending_migration":
+                    raise UserError(_("No pending schema changes found."))
                 connection = record._get_snowflake_connection()
                 try:
                     cursor = connection.cursor()
@@ -322,19 +364,25 @@ class SnowflakeTableConfig(models.Model):
                                 % (table_sql, _quote_sql_identifier(mapping.column_name), mapping.column_type)
                             )
                             added_columns.append(mapping.column_name)
-                        elif existing_columns[mapping_name] != mapping.column_type.upper():
+                        elif existing_columns[mapping_name][1] != mapping.column_type.upper():
                             cursor.execute(
                                 "ALTER TABLE %s ALTER COLUMN %s SET DATA TYPE %s"
                                 % (table_sql, _quote_sql_identifier(mapping.column_name), mapping.column_type)
                             )
                             altered_columns.append(mapping.column_name)
-                    for existing_name in existing_columns:
-                        if existing_name not in mapped_columns:
+                    for existing_name_norm, (existing_name, existing_type) in existing_columns.items():
+                        if existing_name_norm not in mapped_columns:
                             cursor.execute("ALTER TABLE %s DROP COLUMN IF EXISTS %s" % (table_sql, _quote_sql_identifier(existing_name)))
                             removed_columns.append(existing_name)
                     connection.commit()
                 finally:
                     connection.close()
+                state_by_column_name = {}
+                for column_name in added_columns + altered_columns:
+                    state_by_column_name[column_name.upper()] = "published"
+                for column_name in removed_columns:
+                    state_by_column_name[column_name.upper()] = "not_published"
+                record._update_column_sync_states(state_by_column_name=state_by_column_name)
                 self.env["snowflake.migration.log"].create(
                     {
                         "table_config_id": record.id,
@@ -344,8 +392,13 @@ class SnowflakeTableConfig(models.Model):
                         "status": "success",
                     }
                 )
-                record.migration_state = "up_to_date"
+                record.action_check_migration()
                 record.table_schema_version = (record.table_schema_version or 0) + 1
+                _logger.info(
+                    "Snowflake schema migration finished for table config %s (%s).",
+                    record.id,
+                    record.display_name,
+                )
             except Exception as exc:  # pragma: no cover - surfaced to user
                 self.env["snowflake.migration.log"].create(
                     {
@@ -355,10 +408,17 @@ class SnowflakeTableConfig(models.Model):
                     }
                 )
                 raise UserError(_("Schema migration failed:\n%s") % exc) from exc
-        return True
+        return {"type": "ir.actions.client", "tag": "soft_reload"}
 
     def action_update_table(self):
-        return self.action_migrate_schema()
+        _logger.info("Snowflake alter table check started for table config %s.", self.id)
+        self.action_check_migration()
+        _logger.info(
+            "Snowflake alter table check finished for table config %s with migration state %s.",
+            self.id,
+            self.migration_state,
+        )
+        return {"type": "ir.actions.client", "tag": "soft_reload"}
 
     def action_delete_table_data(self):
         for record in self:
@@ -399,6 +459,8 @@ class SnowflakeTableConfig(models.Model):
             return fields.Date.to_string(value) if value else None
         if mapping.odoo_field_type in ("datetime",):
             return fields.Datetime.to_string(value) if value else None
+        if mapping.odoo_field_type == "binary":
+            return self._prepare_binary_bytes(value)
         if value is None:
             return False
         if isinstance(value, str):
@@ -415,6 +477,23 @@ class SnowflakeTableConfig(models.Model):
             return value.id or value.display_name or False
         return str(value)
 
+    def _prepare_binary_bytes(self, value):
+        """Convert an Odoo binary value to raw bytes for Snowflake BINARY columns."""
+        if value in (None, False, ""):
+            return None
+        if isinstance(value, memoryview):
+            return bytes(value)
+        if isinstance(value, bytes):
+            return value
+        if isinstance(value, bytearray):
+            return bytes(value)
+        if isinstance(value, str):
+            try:
+                return base64.b64decode(value)
+            except Exception:
+                return value.encode("utf-8")
+        return str(value).encode("utf-8")
+
     def _prepare_variant_value(self, record, mapping):
         value = self._prepare_record_value(record, mapping)
         if value is None:
@@ -426,6 +505,9 @@ class SnowflakeTableConfig(models.Model):
             except Exception:
                 return json.dumps(value)
         return json.dumps(value, default=str)
+
+    def _prepare_binary_value(self, record, mapping):
+        return self._prepare_binary_bytes(record[mapping.field_name])
 
     def _normalize_snowflake_column_type(self, data_type):
         """Map Snowflake type aliases to the connector's canonical column types."""
@@ -451,6 +533,12 @@ class SnowflakeTableConfig(models.Model):
     def action_export_data(self, incremental=True):
         summaries = []
         for record in self:
+            _logger.info(
+                "Snowflake export started for table config %s (%s), incremental=%s.",
+                record.id,
+                record.display_name,
+                incremental,
+            )
             summary = {
                 "new_record_count": 0,
                 "updated_record_count": 0,
@@ -466,8 +554,7 @@ class SnowflakeTableConfig(models.Model):
             included_mappings = record.field_mapping_ids.filtered("is_included").sorted("sequence")
             if not included_mappings:
                 raise UserError(_("Please generate field mapping before exporting data."))
-            batch_size = int(self.env["ir.config_parameter"].sudo().get_param("sh_snowflake_connector.default_batch_size", 5000) or 5000)
-            batch_size = max(batch_size, 1)
+            batch_size = 100
             start = time.time()
             try:
                 connection = record._get_snowflake_connection()
@@ -496,6 +583,9 @@ class SnowflakeTableConfig(models.Model):
                                     if mapping.column_type == "VARIANT":
                                         expressions.append("PARSE_JSON(%s)")
                                         values.append(record._prepare_variant_value(rec, mapping))
+                                    elif mapping.column_type == "BINARY":
+                                        expressions.append("%s")
+                                        values.append(record._prepare_binary_value(rec, mapping))
                                     else:
                                         expressions.append("%s")
                                         values.append(record._prepare_record_value(rec, mapping))
@@ -550,6 +640,14 @@ class SnowflakeTableConfig(models.Model):
                         "duration_seconds": time.time() - start,
                     }
                 )
+                _logger.info(
+                    "Snowflake export finished for table config %s (%s): new=%s updated=%s failed=%s.",
+                    record.id,
+                    record.display_name,
+                    summary["new_record_count"],
+                    summary["updated_record_count"],
+                    summary["failed_record_count"],
+                )
             except Exception as exc:
                 summary["status"] = "failed"
                 summary["error_message"] = str(exc)
@@ -590,6 +688,10 @@ class SnowflakeTableConfig(models.Model):
                     connection.commit()
                 finally:
                     connection.close()
+                record._update_column_sync_states(
+                    table_state="not_published",
+                    table_column_state="not_published",
+                )
                 record.table_state = "not_created"
                 record.last_sync_date = False
                 record.last_sync_new_count = 0
@@ -598,9 +700,6 @@ class SnowflakeTableConfig(models.Model):
             except Exception as exc:  # pragma: no cover - surfaced to user
                 raise UserError(_("Delete table failed:\n%s") % exc) from exc
         return True
-
-    def action_remove_table(self):
-        return self.action_delete_table()
 
     def action_reset_sync_status(self):
         self.ensure_one()
@@ -646,7 +745,44 @@ class SnowflakeTableConfig(models.Model):
 
     @api.model
     def _cron_cleanup_old_logs(self):
-        retention_days = int(self.env["ir.config_parameter"].sudo().get_param("sh_snowflake_connector.log_retention_days", 90) or 90)
-        limit_date = fields.Datetime.now() - timedelta(days=retention_days)
+        _logger.info("Snowflake cleanup cron started.")
+        limit_date = fields.Datetime.now() - timedelta(days=30)
+        sync_log_count = self.env["snowflake.sync.log"].search_count([("date", "<", limit_date)])
+        migration_log_count = self.env["snowflake.migration.log"].search_count([("date", "<", limit_date)])
         self.env["snowflake.sync.log"].search([("date", "<", limit_date)]).unlink()
         self.env["snowflake.migration.log"].search([("date", "<", limit_date)]).unlink()
+        _logger.info(
+            "Snowflake cleanup cron finished. Removed logs older than 30 day(s): %s sync log(s) and %s migration log(s).",
+            sync_log_count,
+            migration_log_count,
+        )
+
+    @api.model
+    def _cron_sync_tables(self):
+        _logger.info("Snowflake sync cron started.")
+        table_configs = self.search([("table_state", "=", "created"), ("cron_export_data", "=", True)])
+        _logger.info("Snowflake sync cron found %s table config(s) to process.", len(table_configs))
+        
+        for table_config in table_configs:
+            try:
+                use_incremental = not bool((table_config.domain_filter or "").strip())
+                _logger.info(
+                    "Snowflake sync cron processing table config %s (%s), incremental=%s.",
+                    table_config.id,
+                    table_config.display_name,
+                    use_incremental,
+                )
+                table_config.action_export_data(incremental=use_incremental)
+                _logger.info(
+                    "Snowflake sync cron finished table config %s (%s).",
+                    table_config.id,
+                    table_config.display_name,
+                )
+            except Exception as exc:
+                _logger.exception(
+                    "Snowflake sync cron failed for table config %s (%s): %s",
+                    table_config.id,
+                    table_config.display_name,
+                    exc,
+                )
+        _logger.info("Snowflake sync cron finished.")

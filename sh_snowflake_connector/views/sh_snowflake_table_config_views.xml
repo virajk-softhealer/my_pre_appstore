@@ -7,8 +7,8 @@
             <list>
                 <field name="name"/>
                 <field name="database_id"/>
-                <field name="model_id"/>
                 <field name="table_state" widget="badge" decoration-success="table_state == 'created'" decoration-warning="table_state == 'not_created'"/>
+                <field name="model_id"/>
                 <field name="migration_state" widget="badge" decoration-success="migration_state == 'up_to_date'" decoration-warning="migration_state == 'pending_migration'"/>
                 <field name="created_by_id"/>
                 <field name="created_on"/>
@@ -43,11 +43,17 @@
             <form string="Snowflake Table Configuration">
                 <header>
                     <button name="action_publish_table" type="object" string="Publish Table" class="btn-primary" invisible="table_state == 'created'"/>
-                    <button name="action_remove_table" type="object" string="Remove Table" class="btn-danger" invisible="table_state != 'created'"/>
-                    <button name="action_sync_data" type="object" string="Sync Data to Snowflake" class="btn btn-primary" invisible="table_state != 'created'"/>
-                    <button name="action_unpublish_table" type="object" string="Unpublish Table" class="btn btn-secondary" invisible="table_state != 'created'"/>
-                    <button name="action_delete_table_data" type="object" string="Delete Table Data" class="btn btn-secondary" invisible="table_state != 'created'"/>
-                    <button name="action_update_table" type="object" string="Alter Table" class="btn btn-secondary" invisible="table_state != 'created' or migration_state != 'pending_migration'"/>
+                    <button name="action_sync_data" type="object" string="Export Data to Snowflake" class="btn btn-success" invisible="table_state != 'created' or migration_state == 'pending_migration'"/>
+                    <button name="action_unpublish_table" type="object" string="Unpublish Table" class="btn-danger" invisible="table_state != 'created'"/>
+                    <button name="action_delete_table_data" type="object" string="Delete Table Data" class="btn btn-warning" invisible="table_state != 'created'"/>
+                    <button name="action_migrate_schema" type="object" string="Migrate Schema" class="btn btn-warning" invisible="table_state != 'created' or migration_state != 'pending_migration'"/>
+                    <button
+                        name="action_update_table"
+                        type="object"
+                        string="Alter Table"
+                        class="btn btn-warning"
+                        invisible="table_state != 'created'"
+                    />
                     <field name="table_state" widget="statusbar" statusbar_visible="not_created,created"/>
                 </header>
                 <sheet>
@@ -86,13 +92,12 @@
                     </group>
                     <notebook>
                         <page string="Columns">
-                            <button name="action_generate_field_mapping" type="object" string="Auto-Generate Columns" class="btn-secondary" invisible="table_state == 'created'"/>
-                            <field name="select_all_columns"/>
+                            <button name="action_generate_field_mapping" type="object" string="Auto-Generate Columns" class="btn-secondary"/>
                             <field name="field_mapping_ids" context="{'default_table_config_id': id, 'default_model_id': model_id}">
                                 <list create="0" edit="0" delete="0">
                                     <field name="column_name"/>
                                     <field name="column_type"/>
-                                    <field name="column_sync_state" widget="badge" decoration-success="column_sync_state == 'published'" decoration-warning="column_sync_state == 'not_published'" decoration-danger="column_sync_state == 'deleted'"/>
+                                    <field name="column_sync_state" widget="badge" decoration-success="column_sync_state == 'published'" decoration-warning="column_sync_state == 'not_published'"/>
                                 </list>
                             </field>
                         </page>
