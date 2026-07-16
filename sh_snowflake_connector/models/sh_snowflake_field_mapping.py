@@ -30,6 +30,7 @@ class SnowflakeFieldMapping(models.Model):
             ("BOOLEAN", "BOOLEAN"),
             ("DATE", "DATE"),
             ("TIMESTAMP_NTZ", "TIMESTAMP"),
+            ("BINARY", "BINARY"),
             ("VARIANT", "VARIANT"),
         ],
         default="VARCHAR",
@@ -42,9 +43,8 @@ class SnowflakeFieldMapping(models.Model):
         [
             ("published", "Published"),
             ("not_published", "Not Published"),
-            ("deleted", "Deleted"),
         ],
-        compute="_compute_column_sync_state",
+        default="not_published",
         readonly=True,
     )
     sequence = fields.Integer(default=10)
@@ -54,16 +54,6 @@ class SnowflakeFieldMapping(models.Model):
     def _compute_name(self):
         for line in self:
             line.name = line.field_label or line.column_name or line.field_name or "/"
-
-    @api.depends("active", "is_included")
-    def _compute_column_sync_state(self):
-        for line in self:
-            if not line.active:
-                line.column_sync_state = "deleted"
-            elif line.is_included:
-                line.column_sync_state = "published"
-            else:
-                line.column_sync_state = "not_published"
 
     @api.onchange("odoo_field_id")
     def _onchange_odoo_field_id(self):

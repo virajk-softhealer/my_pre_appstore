@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="ir_cron_snowflake_cleanup_logs" model="ir.cron">
-        <field name="name">Snowflake Cleanup Logs</field>
+        <field name="name">Snowflake: Cleanup Sync and Migration Logs</field>
         <field name="model_id" ref="model_snowflake_table_config"/>
         <field name="state">code</field>
         <field name="code">model._cron_cleanup_old_logs()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">False</field>
+    </record>
+
+    <record id="ir_cron_snowflake_sync_tables" model="ir.cron">
+        <field name="name">Snowflake: Sync Tables Data</field>
+        <field name="model_id" ref="model_snowflake_table_config"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_sync_tables()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
         <field name="active">False</field>

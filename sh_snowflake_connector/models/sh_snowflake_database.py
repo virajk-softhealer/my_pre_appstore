@@ -1,10 +1,15 @@
 # -- coding: utf-8 --
 # Copyright (C) Softhealer Technologies Pvt. Ltd.
 
+import logging
+
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
 from .sh_snowflake_connection import _quote_sql_identifier
+
+
+_logger = logging.getLogger(__name__)
 
 
 class SnowflakeDatabase(models.Model):
@@ -60,9 +65,21 @@ class SnowflakeDatabase(models.Model):
         for database in self:
             database.table_count = len(database.table_ids)
 
+    def _ensure_connection_is_tested(self):
+        self.ensure_one()
+        if not self.connection_id or self.connection_id.state != "tested":
+            raise UserError(_("Test the Snowflake connection first."))
+
     def action_create_database(self):
         for database in self:
             try:
+                database._ensure_connection_is_tested()
+                _logger.info(
+                    "Snowflake database create started for database %s (%s) using connection %s.",
+                    database.name,
+                    database.id,
+                    database.connection_id.id,
+                )
                 connection = database.connection_id._open_connection()
                 try:
                     cursor = connection.cursor()
@@ -75,17 +92,80 @@ class SnowflakeDatabase(models.Model):
                                 _quote_sql_identifier(database.name),
                                 _quote_sql_identifier(database.schema_name),
                             )
-                        )
+                    )
                     connection.commit()
                 finally:
                     connection.close()
                 database.state = "published"
+                _logger.info(
+                    "Snowflake database create finished for database %s (%s).",
+                    database.name,
+                    database.id,
+                )
             except Exception as exc:  # pragma: no cover - surfaced to user
+                _logger.exception(
+                    "Snowflake database create failed for database %s (%s): %s",
+                    database.name,
+                    database.id,
+                    exc,
+                )
                 raise UserError(_("Database creation failed:\n%s") % exc) from exc
+        return True
+
+    def action_delete_database(self):
+        for database in self:
+            try:
+                database._ensure_connection_is_tested()
+                _logger.info(
+                    "Snowflake database delete started for database %s (%s) using connection %s.",
+                    database.name,
+                    database.id,
+                    database.connection_id.id,
+                )
+                database.table_config_ids.write(
+                    {
+                        "table_state": "not_created",
+                        "migration_state": "up_to_date",
+                        "last_sync_date": False,
+                        "last_sync_new_count": 0,
+                        "last_sync_updated_count": 0,
+                        "last_sync_status": False,
+                    }
+                )
+                database.table_config_ids._update_column_sync_states(
+                    table_state="not_published",
+                    table_column_state="not_published",
+                )
+                connection = database.connection_id._open_connection()
+                try:
+                    cursor = connection.cursor()
+                    cursor.execute("DROP DATABASE IF EXISTS %s" % _quote_sql_identifier(database.name))
+                    connection.commit()
+                finally:
+                    connection.close()
+                database.state = "to_publish"
+                _logger.info(
+                    "Snowflake database delete finished for database %s (%s).",
+                    database.name,
+                    database.id,
+                )
+            except Exception as exc:  # pragma: no cover - surfaced to user
+                _logger.exception(
+                    "Snowflake database delete failed for database %s (%s): %s",
+                    database.name,
+                    database.id,
+                    exc,
+                )
+                raise UserError(_("Database deletion failed:\n%s") % exc) from exc
         return True
 
     def action_fetch_tables(self):
         self.ensure_one()
+        _logger.info(
+            "Snowflake database fetch tables opened for database %s (%s).",
+            self.name,
+            self.id,
+        )
         return {
             "type": "ir.actions.act_window",
             "name": _("Table Configurations"),
@@ -97,3 +177,19 @@ class SnowflakeDatabase(models.Model):
                 "default_schema_name": self.schema_name,
             },
         }
+
+    def unlink(self):
+        for database in self:
+            if database.connection_id and database.connection_id.state == "tested":
+                database.table_config_ids.write(
+                    {
+                        "table_state": "not_created",
+                        "migration_state": "up_to_date",
+                        "last_sync_date": False,
+                        "last_sync_new_count": 0,
+                        "last_sync_updated_count": 0,
+                        "last_sync_status": False,
+                    }
+                )
+                database.action_delete_database()
+        return super().unlink()
