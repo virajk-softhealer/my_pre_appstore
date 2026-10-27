@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_calendly_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sh.calendly</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="100"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Calendly" string="Calendly" name="sh_calendly_connector" groups="base.group_system">
+                    <block title="Connection" name="calendly_connection">
+                        <field name="sh_calendly_connection_state" invisible="True"/>
+                        <setting string="Authentication Method" help="Choose OAuth for automatic token management or PAT for a manually managed Personal Access Token.">
+                            <field name="sh_calendly_auth_method" widget="radio"/>
+                        </setting>
+                        <setting
+                            string="Personal Access Token"
+                            help="Used only when Personal Access Token authentication is selected."
+                            invisible="sh_calendly_auth_method != 'pat'"
+                        >
+                            <field name="sh_calendly_pat_token" password="True"/>
+                        </setting>
+                        <setting string="Client ID" help="Calendly OAuth Client ID." invisible="sh_calendly_auth_method == 'pat'">
+                            <field name="sh_calendly_client_id"/>
+                        </setting>
+                        <setting string="Client Secret" help="Calendly OAuth Client Secret." invisible="sh_calendly_auth_method == 'pat'">
+                            <field name="sh_calendly_client_secret" password="True"/>
+                        </setting>
+                        <setting string="Webhook Signing Key" help="Calendly webhook HMAC signing key.">
+                            <field name="sh_calendly_webhook_signing_key" password="True"/>
+                        </setting>
+                        <setting string="OAuth Access Token" help="Token issued by Calendly after OAuth authorization. Managed automatically by the connector." readonly="True" class="o_setting_box" invisible="True">
+                            <field name="sh_calendly_access_token" password="True" class="text-truncate"/>
+                        </setting>
+                        <setting string="OAuth Refresh Token" help="Refresh token issued by Calendly after OAuth authorization. Managed automatically by the connector." readonly="True" class="o_setting_box" invisible="True">
+                            <field name="sh_calendly_refresh_token" password="True" class="text-truncate"/>
+                        </setting>
+                        <setting string="Connection Status">
+                            <field name="sh_calendly_connection_state" readonly="True"/>
+                        </setting>
+                        
+                        <setting class="col-lg-6">
+                            <div class="d-flex gap-1 action_buttons mt-2 flex-wrap">
+                                <button
+                                    name="action_calendly_connect"
+                                    type="object"
+                                    string="Connect Calendly"
+                                    class="btn-primary"
+                                    invisible="sh_calendly_auth_method == 'pat' or sh_calendly_connection_state == 'connected' or not sh_calendly_client_id or not sh_calendly_client_secret"/>
+                                <button
+                                    name="action_calendly_test_connection"
+                                    type="object"
+                                    string="Test Connection"
+                                    class="btn-secondary"
+                                    invisible="sh_calendly_auth_method == 'pat' and not sh_calendly_pat_token"/>
+                                <button
+                                    name="action_calendly_disconnect"
+                                    type="object"
+                                    string="Disconnect"
+                                    class="btn-secondary"
+                                    invisible="sh_calendly_connection_state != 'connected'"/>
+                            </div>
+                        </setting>
+
+                        <setting string="Organization" invisible="True">
+                            <field name="sh_calendly_organization_uri" readonly="True"/>
+                        </setting>
+                        <setting string="Webhook Subscription" invisible="True">
+                            <field name="sh_calendly_webhook_subscription_uri" readonly="True"/>
+                        </setting>
+                        <setting string="Token Expiration" invisible="True">
+                            <field name="sh_calendly_token_expires_at" readonly="True"/>
+                        </setting>
+                        <setting string="Authenticated User" invisible="True">
+                            <field name="sh_calendly_authenticated_user_uri" readonly="True"/>
+                        </setting>
+                        <setting string="Last Synchronization" invisible="True">
+                            <field name="sh_calendly_last_sync_at" readonly="True"/>
+                        </setting>
+                        <setting class="col-lg-6">
+                            <div class="d-flex gap-1 action_buttons mt-2 flex-wrap">
+                                <button
+                                    name="action_calendly_register_webhook"
+                                    type="object"
+                                    string="Register Webhook"
+                                    class="btn-secondary"
+                                    invisible="sh_calendly_connection_state != 'connected' or not sh_calendly_webhook_signing_key"/>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Synchronization" name="calendly_sync">
+                        <setting class="col-lg-6" string="Create CRM Lead for Calendly Bookings" help="Create or reuse a CRM lead when a Calendly booking is synchronized into Odoo.">
+                            <field name="sh_calendly_create_lead"/>
+                        </setting>
+                        <setting class="col-lg-6" string="Automatic Event Type Sync" help="Process Event Type created, updated, and deleted immediately.">
+                            <field name="sh_calendly_auto_sync_event_types"/>
+                            <div class="d-flex gap-1 action_buttons mt-2">
+                                <button
+                                    name="action_calendly_sync_event_types"
+                                    type="object"
+                                    string="Calendly Event Type Sync"
+                                    class="btn-secondary"/>
+                            </div>
+                        </setting>
+                        <setting class="col-lg-6" string="Automatic Calendly → Odoo Sync" help="Process verified immediately.">
+                            <field name="sh_calendly_auto_sync_to_odoo"/>
+                            <div class="d-flex gap-1 action_buttons mt-2">
+                                <button
+                                    name="action_calendly_sync_calendly_to_odoo"
+                                    type="object"
+                                    string="Calendly to Odoo Sync"
+                                    class="btn-secondary"/>
+                            </div>
+                        </setting>
+                        <setting class="col-lg-6" string="Automatic Odoo → Calendly Sync" help="Send eligible Odoo Calendar changes immediately.">
+                            <field name="sh_calendly_auto_sync_to_calendly"/>
+                            <div class="d-flex gap-1 action_buttons mt-2">
+                                <button
+                                    name="action_calendly_sync_odoo_to_calendly"
+                                    type="object"
+                                    string="Odoo to Calendly Sync"
+                                    class="btn-secondary"/>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+    <record id="action_sh_calendly_config_settings" model="ir.actions.act_window">
+        <field name="name">Calendly Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'sh_calendly_connector'}</field>
+    </record>
+</odoo>

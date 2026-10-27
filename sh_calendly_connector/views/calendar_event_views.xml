@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_calendar_event_form_inherit_sh_calendly" model="ir.ui.view">
+        <field name="name">calendar.event.form.inherit.sh.calendly</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="calendly_details" string="Calendly Details" groups="sh_integration_base.sh_api_group">
+                    <group>
+                        <field
+                            name="sh_calendly_event_type_id"
+                            options="{'no_create': True}"
+                            required="1"
+                            help="Select the synchronized Calendly Event Type used when sending this meeting to Calendly."/>
+                        <field name="sh_calendly_event_uuid" readonly="1" invisible="not sh_calendly_event_uuid"/>
+                        <field name="sh_calendly_status" readonly="1" invisible="not sh_calendly_event_uuid"/>
+                        <field name="sh_calendly_event_type" invisible="True"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

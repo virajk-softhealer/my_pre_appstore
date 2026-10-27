@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sh_calendly_sync_log_list" model="ir.ui.view">
+        <field name="name">sh.calendly.sync.log.list</field>
+        <field name="model">sh.calendly.sync.log</field>
+        <field name="arch" type="xml">
+            <list string="Sync Logs" create="False" edit="False" delete="False">
+                <field name="event_type" column_invisible="1"/>
+                <field name="date"/>
+                <field name="invitee_email"/>
+                <field name="calendar_event_id"/>
+                <field name="event_type_id"/>
+                <field name="lead_id" optional="hide"/>
+                <field name="operation" optional="hide"/>
+                <field name="sync_direction" optional="hide"/>
+                <field name="source" optional="hide"/>
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-info="status == 'pending'"
+                    decoration-success="status == 'success'"
+                    decoration-danger="status == 'failed'"
+                    decoration-muted="status == 'skipped'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sh_calendly_sync_log_form" model="ir.ui.view">
+        <field name="name">sh.calendly.sync.log.form</field>
+        <field name="model">sh.calendly.sync.log</field>
+        <field name="arch" type="xml">
+            <form string="Sync Log" create="False" edit="False" delete="False">
+                <header>
+                    <button name="action_retry_failed" type="object" string="Retry Failed" class="btn-primary" invisible="status != 'failed'" groups="base.group_system"/>
+                    <field name="status" widget="statusbar" statusbar_visible="pending,success,failed,skipped" readonly="1"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date" readonly="1"/>
+                            <field name="operation" readonly="1"/>
+                            <field name="event_type_id" readonly="1"/>
+                            <field name="calendar_event_id" readonly="1" invisible="not calendar_event_id"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                            <field name="event_type" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="invitee_email" readonly="1"/>
+                            <field name="sync_direction" readonly="1"/>
+                            <field name="source" readonly="1"/>
+                            <field name="lead_id" readonly="1" invisible="not lead_id"/>
+                        </group>
+                    </group>
+                    <group invisible="1">
+                        <field name="external_event_id"/>
+                        <field name="external_invitee_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Response">
+                            <field name="response_display" readonly="1" nolabel="True"/>
+                        </page>
+                        <page string="Error" invisible="not api_error">
+                            <field name="api_error" readonly="1" nolabel="True"/>
+                        </page>
+                        <page string="Message" invisible="not message">
+                            <field name="message" readonly="1" nolabel="True"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sh_calendly_sync_log_search" model="ir.ui.view">
+        <field name="name">sh.calendly.sync.log.search</field>
+        <field name="model">sh.calendly.sync.log</field>
+        <field name="arch" type="xml">
+            <search string="Sync Logs">
+                <field name="operation"/>
+                <field name="sync_direction"/>
+                <field name="event_type"/>
+                <field name="invitee_email"/>
+                <field name="status"/>
+                <field name="source"/>
+                <filter name="failed" string="Failed" domain="[('status','=','failed')]"/>
+                <filter name="success" string="Success" domain="[('status','=','success')]"/>
+                <group name="group_by">
+                    <filter name="group_status" string="Status" context="{'group_by':'status'}"/>
+                    <filter name="group_source" string="Source" context="{'group_by':'source'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_sh_calendly_sync_log" model="ir.actions.act_window">
+        <field name="name">Sync Logs</field>
+        <field name="res_model">sh.calendly.sync.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_sh_calendly_sync_log_search"/>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sh_calendly_menu_logs" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_calendly_connector.sh_calendly_connector_connector"/>
+            <field name="source_menu_id" ref="sh_calendly_connector.sh_calendly_sync_log_menu"/>
+            <field name="sequence">1</field>
+            <field name="group_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        <record id="sh_calendly_menu_settings" model="sh.integration.connector.menu">
+            <field name="connector_id" ref="sh_calendly_connector.sh_calendly_connector_connector"/>
+            <field name="source_menu_id" ref="sh_calendly_connector.sh_calendly_settings_menu"/>
+            <field name="sequence">2</field>
+            <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+    </data>
+</odoo>

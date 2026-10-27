@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_sh_calendly_poll_bookings" model="ir.cron">
+        <field name="name">Calendly: Calendly to Odoo</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_poll_bookings()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">False</field>
+    </record>
+    <record id="ir_cron_sh_calendly_push_odoo_changes" model="ir.cron">
+        <field name="name">Calendly: Odoo to Calendly</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_push_odoo_changes()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">False</field>
+    </record>
+    <record id="ir_cron_sh_calendly_cleanup_sync_logs" model="ir.cron">
+        <field name="name">Calendly: Cleanup Sync Logs</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_cleanup_sync_logs()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

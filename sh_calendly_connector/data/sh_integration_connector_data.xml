@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sh_calendly_connector_connector" model="sh.integration.connector">
+            <field name="name">Calendly Connector</field>
+            <field name="technical_name">sh_calendly_connector</field>
+            <field name="sequence">10</field>
+            <field name="color">6</field>
+            <field name="config_model">res.company</field>
+            <field name="connected_field">sh_calendly_connection_state</field>
+            <field name="connected_value">connected</field>
+            <field name="log_model">sh.calendly.sync.log</field>
+            <field name="log_date_field">date</field>
+            <field name="log_state_field">status</field>
+            <field name="log_error_value">failed</field>
+            <field name="log_message_field">message</field>
+            <field name="config_action">sh_calendly_connector.action_sh_calendly_config_settings</field>
+            <field name="menu_name">Calendly</field>
+            <field name="menu_sequence">10</field>
+        </record>
+    </data>
+    <data noupdate="0">
+        <function model="sh.integration.connector" name="action_sync_menus_by_module">
+            <value>sh_calendly_connector</value>
+        </function>
+    </data>
+</odoo>

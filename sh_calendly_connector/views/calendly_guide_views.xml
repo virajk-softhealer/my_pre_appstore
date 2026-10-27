@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sh_calendly_guide_form" model="ir.ui.view">
+        <field name="name">sh.calendly.guide.form</field>
+        <field name="model">sh.calendly.guide</field>
+        <field name="arch" type="xml">
+            <form string="Calendly Setup Guide" create="0" edit="0" delete="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <field name="content" nolabel="1" readonly="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

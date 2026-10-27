@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sh_calendly_setup_guide" model="sh.calendly.guide">
+        <field name="name">Calendly Connector Setup Guide</field>
+        <field name="content"><![CDATA[
+            <div class="o_calendly_user_guide">
+                <p>Follow these steps to connect Calendly and synchronize meetings with Odoo.</p>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr><th>Step</th><th>Task</th><th>Instructions</th><th>Expected result</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Create Calendly credentials</td><td>Create an OAuth application with redirect URL <b>https://your-odoo-host/calendly/oauth/callback</b>, or generate a Personal Access Token.</td><td>OAuth client credentials or a PAT is ready to enter in Odoo.</td></tr>
+                        <tr><td>2</td><td>Save credentials in Odoo</td><td><b>OAuth:</b> enter Client ID, Client Secret, and Webhook Signing Key.<br/><b>PAT:</b> enter Personal Access Token and Webhook Signing Key.</td><td>All required credential fields are saved for the selected company.</td></tr>
+                        <tr><td>3</td><td>Verify connection</td><td>For OAuth, click <b>Connect Calendly</b> and approve access. For PAT, click <b>Test Connection</b>.</td><td>Connection Status changes to <b>Connected</b>.</td></tr>
+                        <tr><td>4</td><td>Activate webhook</td><td>Click <b>Register Webhook</b> after connecting. Do not change the Webhook Signing Key while it is active.</td><td>Calendly booking notifications are accepted and verified by Odoo.</td></tr>
+                        <tr><td>5</td><td>Link an Event Type</td><td>Click <b>Calendly Event Type Sync</b>. Open <b>Calendar → Meeting → Calendly Details</b>, select an Event Type, and save.</td><td>The Odoo meeting has a Calendly Event Type selected for booking.</td></tr>
+                        <tr><td>6</td><td>Enable inbound synchronization</td><td>Enable <b>Automatic Calendly → Odoo Sync</b>, or click <b>Calendly to Odoo Sync</b> for a manual recovery.</td><td>New Calendly bookings create or update Odoo Calendar meetings.</td></tr>
+                        <tr><td>7</td><td>Enable outbound synchronization</td><td>Enable <b>Automatic Odoo → Calendly Sync</b>. Ensure the meeting has a start time and an attendee email.</td><td>Eligible Odoo meetings are created as Calendly bookings.</td></tr>
+                        <tr><td>8</td><td>Check synchronization logs</td><td>Open <b>Calendly → Sync Logs</b>. Review status, direction, Event Type, Calendar Event, errors, and responses. Retry failed logs as an administrator.</td><td>Each synchronization result is traceable, and failed records can be retried.</td></tr>
+                        <tr><td>9</td><td>Cancel a booking</td><td>Archive or delete a linked Odoo meeting while outbound synchronization is enabled. Removing only the Event Type does not cancel a booking.</td><td>The linked Calendly booking is canceled only when the Odoo meeting is archived or deleted.</td></tr>
+                        <tr><td>10</td><td>Understand log stages</td><td><b>Pending:</b> synchronization started and is waiting for completion.<br/><b>Success:</b> synchronization completed successfully.<br/><b>Failed:</b> validation, credentials, API, or processing error occurred.<br/><b>Skipped:</b> no synchronization was required or the event type was unsupported.</td><td>The status shows the current result of each synchronization attempt.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            ]]>
+        </field>
+    </record>
+    
+    <record id="action_sh_calendly_guide" model="ir.actions.act_window">
+        <field name="name">Setup Guide</field>
+        <field name="res_model">sh.calendly.guide</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="sh_calendly_setup_guide"/>
+    </record>
+</odoo>
