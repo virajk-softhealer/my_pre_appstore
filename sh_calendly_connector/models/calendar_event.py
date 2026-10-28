@@ -63,7 +63,7 @@ class CalendarEvent(models.Model):
                 continue
             company = event.user_id.company_id or self.env.company
             service = CalendlySyncService(self.env, company)
-            if not company.sh_calendly_auto_sync_to_calendly:
+            if not company.sh_calendly_auto_sync_to_calendly or company.sh_calendly_enable_queue:
                 service._log({
                     'source': 'odoo_action',
                     'event_type': 'calendar.event',
@@ -112,7 +112,7 @@ class CalendarEvent(models.Model):
         for event in self:
             company = event.user_id.company_id or self.env.company
             service = CalendlySyncService(self.env, company)
-            if company.sh_calendly_auto_sync_to_calendly:
+            if company.sh_calendly_auto_sync_to_calendly and not company.sh_calendly_enable_queue:
                 service.push_event(event)
             else:
                 service.queue_pending_event(event)

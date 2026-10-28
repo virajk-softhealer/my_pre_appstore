@@ -32,6 +32,7 @@
             <form string="Sync Log" create="False" edit="False" delete="False">
                 <header>
                     <button name="action_retry_failed" type="object" string="Retry Failed" class="btn-primary" invisible="status != 'failed'" groups="base.group_system"/>
+                    <button name="action_add_to_queue" type="object" string="Add to Queue" class="btn-secondary" invisible="status not in ['pending', 'failed']" groups="base.group_system"/>
                     <field name="status" widget="statusbar" statusbar_visible="pending,success,failed,skipped" readonly="1"/>
                 </header>
                 <sheet>

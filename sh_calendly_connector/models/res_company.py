@@ -60,6 +60,11 @@ class ResCompany(models.Model):
         string='Automatic Odoo → Calendly Sync',
         default=False,
     )
+    sh_calendly_enable_queue = fields.Boolean(
+        string='Enable Queue Management',
+        default=False,
+        help='Allow pending or failed Calendly synchronization logs to be processed from the queue.',
+    )
 
     def cron_poll_bookings(self):
         """Poll connected companies whose direct Calendly sync is disabled."""
@@ -99,8 +104,16 @@ class ResCompany(models.Model):
                 service.push_odoo_changes()
 
     def cron_cleanup_sync_logs(self):
-        """Keep the fixed 30-day Sync Log history."""
+        """Keep the fixed 30-day Sync Log and Queue Log history."""
         cutoff = fields.Datetime.now() - timedelta(days=30)
-        self.env['sh.calendly.sync.log'].search([
-            ('date', '<', cutoff),
-        ], limit=5000).unlink()
+        companies = self.env['res.company'].search([])
+        for company in companies:
+            company_env = self.env.with_company(company)
+            company_env['sh.calendly.sync.queue'].search([
+                ('company_id', '=', company.id),
+                ('last_attempt_date', '<', cutoff),
+            ], limit=5000).unlink()
+            company_env['sh.calendly.sync.log'].search([
+                ('company_id', '=', company.id),
+                ('date', '<', cutoff),
+            ], limit=5000).unlink()

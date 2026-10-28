@@ -3,7 +3,7 @@
 
 {
     'name': 'Calendly Connector',
-    'version': '0.0.1',
+    'version': '19.0.1.2.75',
     'category': 'Productivity/Calendar',
     'summary': 'Synchronize Calendly bookings with Odoo Calendar, Contacts, and CRM.',
     'description': (
@@ -22,9 +22,11 @@
         'views/res_config_settings_views.xml',
         'views/calendar_event_views.xml',
         'views/calendly_sync_log_views.xml',
+        'views/calendly_sync_queue_views.xml',
         'data/sh_calendly_guide_data.xml',
         'views/menus.xml',
         'data/calendly_cron.xml',
+        'data/calendly_sync_queue_cron.xml',
         'data/sh_integration_connector_data.xml',
         'data/sh_integration_entity_data.xml',
         'data/sh_integration_menu_data.xml',

@@ -61,6 +61,9 @@ class ResConfigSettings(models.TransientModel):
     sh_calendly_auto_sync_to_calendly = fields.Boolean(
         related='company_id.sh_calendly_auto_sync_to_calendly', readonly=False,
     )
+    sh_calendly_enable_queue = fields.Boolean(
+        related='company_id.sh_calendly_enable_queue', readonly=False,
+    )
 
     def _calendly_company(self):
         self.ensure_one()

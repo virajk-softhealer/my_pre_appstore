@@ -89,3 +89,16 @@ class CalendlySyncLog(models.Model):
             log.write({'status': 'pending'})
             CalendlySyncService(self.env, log.company_id).retry_log(log)
         return True
+
+    def action_add_to_queue(self):
+        """Add a pending or failed synchronization log to the Calendly queue."""
+        self.ensure_one()
+        queue = self.env['sh.calendly.sync.queue'].add_to_queue(self)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Calendly Queue Entry'),
+            'res_model': 'sh.calendly.sync.queue',
+            'view_mode': 'form',
+            'res_id': queue.id,
+            'target': 'current',
+        }

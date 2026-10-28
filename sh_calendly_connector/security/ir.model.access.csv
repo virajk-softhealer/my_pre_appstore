@@ -4,3 +4,5 @@ access_sh_calendly_sync_log_admin,sh.calendly.sync.log administrator,model_sh_ca
 access_sh_calendly_event_type_user,sh.calendly.event.type user,model_sh_calendly_event_type,base.group_user,1,0,0,0
 access_sh_calendly_event_type_admin,sh.calendly.event.type administrator,model_sh_calendly_event_type,base.group_system,1,1,1,1
 access_sh_calendly_guide,sh.calendly.guide user,model_sh_calendly_guide,base.group_user,1,0,0,0
+access_sh_calendly_sync_queue_user,sh.calendly.sync.queue user,model_sh_calendly_sync_queue,base.group_user,1,0,0,0
+access_sh_calendly_sync_queue_admin,sh.calendly.sync.queue administrator,model_sh_calendly_sync_queue,base.group_system,1,1,1,1

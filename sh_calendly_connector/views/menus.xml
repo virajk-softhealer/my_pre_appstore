@@ -3,6 +3,7 @@
     <menuitem id="sh_calendly_root_menu" name="Calendly" sequence="10" groups="base.group_system"/>
     <menuitem id="sh_calendly_event_type_menu" name="Event Types" parent="sh_calendly_root_menu" action="action_sh_calendly_event_type" sequence="10"/>
     <menuitem id="sh_calendly_sync_log_menu" name="Sync Logs" parent="sh_calendly_root_menu" action="action_sh_calendly_sync_log" sequence="15"/>
+    <menuitem id="sh_calendly_sync_queue_menu" name="Queue Logs" parent="sh_calendly_root_menu" action="action_sh_calendly_sync_queue" sequence="17"/>
     <menuitem id="sh_calendly_guide_menu" name="Setup Guide" parent="sh_calendly_root_menu" action="action_sh_calendly_guide" sequence="20"/>
     <menuitem id="sh_calendly_settings_menu" name="Settings" parent="sh_calendly_root_menu" action="action_sh_calendly_config_settings" sequence="25"/>
 </odoo>

@@ -122,6 +122,9 @@
                                     class="btn-secondary"/>
                             </div>
                         </setting>
+                        <setting class="col-lg-6" string="Queue Management" help="Process pending and failed Calendly synchronization logs through the queue.">
+                            <field name="sh_calendly_enable_queue"/>
+                        </setting>
                     </block>
                 </app>
             </xpath>

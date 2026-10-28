@@ -34,13 +34,17 @@ class CalendlyWebhookController(http.Controller):
             return request.make_json_response({'error': 'invalid_json'}, status=400)
         event_type = payload.get('event') or payload.get('event_type')
         event_type_events = ('event_type.created', 'event_type.updated', 'event_type.deleted')
-        if event_type not in ('invitee.created', 'invitee.canceled') + event_type_events:
+        if event_type not in ('invitee.created', 'invitee.updated', 'invitee.canceled') + event_type_events:
             return request.make_json_response({'status': 'ignored'}, status=200)
         auto_sync = (
             company.sh_calendly_auto_sync_event_types
             if event_type in event_type_events
             else company.sh_calendly_auto_sync_to_odoo
         )
+        if company.sh_calendly_enable_queue:
+            service = CalendlySyncService(company.env, company)
+            service.queue_webhook_payload(payload)
+            return request.make_json_response({'status': 'deferred'}, status=200)
         if not auto_sync:
             # The corresponding manual or scheduled flow owns synchronization when direct processing is disabled.
             return request.make_json_response({'status': 'deferred'}, status=200)

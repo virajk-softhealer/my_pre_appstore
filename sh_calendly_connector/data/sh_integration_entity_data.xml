@@ -9,21 +9,29 @@
             <field name="icon">fa-calendar</field>
             <field name="sequence">1</field>
         </record>
-        <record id="sh_calendly_entity_sync_log" model="sh.integration.entity">
-            <field name="connector_id" ref="sh_calendly_connector.sh_calendly_connector_connector"/>
-            <field name="name">Sync Logs</field>
-            <field name="model_id" ref="sh_calendly_connector.model_sh_calendly_sync_log"/>
-            <field name="domain">[]</field>
-            <field name="icon">fa-history</field>
-            <field name="sequence">2</field>
-        </record>
         <record id="sh_calendly_entity_event_type" model="sh.integration.entity">
             <field name="connector_id" ref="sh_calendly_connector.sh_calendly_connector_connector"/>
             <field name="name">Event Types</field>
             <field name="model_id" ref="sh_calendly_connector.model_sh_calendly_event_type"/>
             <field name="domain">[]</field>
             <field name="icon">fa-list-alt</field>
+            <field name="sequence">2</field>
+        </record>
+        <record id="sh_calendly_entity_sync_log" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_calendly_connector.sh_calendly_connector_connector"/>
+            <field name="name">Sync Logs</field>
+            <field name="model_id" ref="sh_calendly_connector.model_sh_calendly_sync_log"/>
+            <field name="domain">[]</field>
+            <field name="icon">fa-history</field>
             <field name="sequence">3</field>
+        </record>
+        <record id="sh_calendly_entity_sync_queue" model="sh.integration.entity">
+            <field name="connector_id" ref="sh_calendly_connector.sh_calendly_connector_connector"/>
+            <field name="name">Queue Logs</field>
+            <field name="model_id" ref="sh_calendly_connector.model_sh_calendly_sync_queue"/>
+            <field name="domain">[]</field>
+            <field name="icon">format_list_numbered</field>
+            <field name="sequence">4</field>
         </record>
     </data>
 </odoo>

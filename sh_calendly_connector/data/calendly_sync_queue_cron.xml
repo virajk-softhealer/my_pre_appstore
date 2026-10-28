@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_sh_calendly_sync_queue_process" model="ir.cron">
+        <field name="name">Calendly: Process Queue Logs</field>
+        <field name="model_id" ref="model_sh_calendly_sync_queue"/>
+        <field name="state">code</field>
+        <field name="code">model.process_queue()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

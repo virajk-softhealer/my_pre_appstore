@@ -14,6 +14,11 @@
             <field name="log_state_field">status</field>
             <field name="log_error_value">failed</field>
             <field name="log_message_field">message</field>
+            <field name="queue_model">sh.calendly.sync.queue</field>
+            <field name="queue_state_field">state</field>
+            <field name="queue_pending_value">draft</field>
+            <field name="queue_done_value">done</field>
+            <field name="queue_error_value">failed</field>
             <field name="config_action">sh_calendly_connector.action_sh_calendly_config_settings</field>
             <field name="menu_name">Calendly</field>
             <field name="menu_sequence">10</field>
